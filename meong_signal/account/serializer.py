@@ -20,3 +20,14 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+    def update(self, instance, validated_data):
+
+        include_fields = ['nickname', 'road_address', 'detail_address', 'profile_image']
+
+        for field in include_fields:
+            if field in validated_data:
+                setattr(instance, field, validated_data[field])
+
+        instance.save()
+        return instance
