@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 
+import logging
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -13,6 +15,7 @@ from drf_yasg import openapi
 from .models import User
 from .serializer import UserSerializer
 
+logger = logging.getLogger(__name__)
 
 ##########################################
 # api 1 : 회원가입
@@ -57,7 +60,10 @@ def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
-    user = authenticate(request, email=email, password=password)
+    logger.info(f"Attempting login with email: {email}")
+
+    user = authenticate(email=email, password=password)
+
 
     if user is None:
         return Response({'status':'401', 'message': '이메일 또는 비밀번호가 일치하지 않습니다.'}, status=status.HTTP_401_UNAUTHORIZED)

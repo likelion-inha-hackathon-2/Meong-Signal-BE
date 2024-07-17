@@ -103,8 +103,8 @@ DATABASES = {
 AUTH_USER_MODEL = 'account.User'
 
 AUTHENTICATION_BACKENDS = [
-    'account.backends.EmailBackend',  # 커스텀 인증 백엔드
-    'django.contrib.auth.backends.ModelBackend',  # 기본 인증 백엔드
+    'account.backends.EmailBackend'  # 커스텀 인증 백엔드
+
 ]
 
 # Password validation
