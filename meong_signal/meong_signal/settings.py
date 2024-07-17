@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "meong_signal.urls"
 
 TEMPLATES = [
@@ -100,6 +101,11 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'account.User'
+
+AUTHENTICATION_BACKENDS = [
+    'account.backends.EmailBackend'  # 커스텀 인증 백엔드
+
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
