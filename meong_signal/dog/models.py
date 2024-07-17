@@ -26,4 +26,8 @@ class Dog(models.Model):
 class DogTag(models.Model):
     dog_id = models.ForeignKey(Dog, on_delete=models.CASCADE)
     number = models.IntegerField()
-    count = models.IntegerField()
+    count = models.IntegerField(default=0)
+
+    def __str__(self):
+        r = f'DOG {self.dog_id.name}의 {self.number}번 칭호'
+        return r

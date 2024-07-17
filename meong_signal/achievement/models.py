@@ -9,10 +9,14 @@ class Achievement(models.Model):
     def __str__(self):
         return self.title
 
-class UserAchievement():
+class UserAchievement(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     achievement_id = models.ForeignKey(Achievement, on_delete=models.CASCADE)
     count = models.DecimalField(max_digits=5, decimal_places=1)
     is_representative = models.BooleanField(default=False)
     is_achieved = models.BooleanField(default=False)
+
+    def __str__(self):
+        r = f'USER {self.user_id.nickname}의 업적 \'{self.achievement_id.title}\''
+        return r
 
