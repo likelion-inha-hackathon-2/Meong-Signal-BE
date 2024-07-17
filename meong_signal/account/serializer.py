@@ -20,6 +20,16 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('nickname', 'road_address', 'detail_address', 'profile_image', "total_distance", "total_kilocalories")
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('nickname', 'road_address', 'detail_address', 'profile_image')
     
     def update(self, instance, validated_data):
 

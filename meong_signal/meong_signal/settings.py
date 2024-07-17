@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "walk",
     #
     'corsheaders',
+    'drf_yasg',
+    'rest_framework',
     #
     "django.contrib.admin",
     "django.contrib.auth",
@@ -71,6 +73,21 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'BearerAuth': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': "JWT Token"
+        }
+    },
+    'SECURITY_REQUIREMENTS': [{
+        'BearerAuth': []
+    }]
+}
 
 CORS_ALLOW_METHODS = [  # 허용할 옵션
     'DELETE',

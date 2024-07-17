@@ -13,7 +13,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from .models import User
-from .serializer import UserSerializer
+from .serializer import *
 
 
 ##########################################
@@ -81,7 +81,7 @@ def login(request):
     tags=["account api"],
     operation_summary="사용자 정보 확인",
     responses={
-        200: UserSerializer,
+        200: UserInfoSerializer,
         401: 'Unauthorized'
     }
 )
@@ -89,7 +89,10 @@ def login(request):
 @authentication_classes([JWTAuthentication])
 def get_user_info(request):
     user = request.user
-    serializer = UserSerializer(user)
+    if user is None:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = UserInfoSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 ##########################################
@@ -104,9 +107,9 @@ def get_user_info(request):
     method="PUT",
     tags=["account api"],
     operation_summary="사용자 정보 수정",
-    request_body=UserSerializer,
+    request_body=UserUpdateSerializer,
     responses={
-        200: UserSerializer,
+        200: UserUpdateSerializer,
         400: 'Bad Request',
         401: 'Unauthorized'
     }
@@ -115,7 +118,7 @@ def get_user_info(request):
 @authentication_classes([JWTAuthentication])
 def update_user_info(request):
     user = request.user
-    serializer = UserSerializer(user, data=request.data, partial=True)
+    serializer = UserUpdateSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response({'message':'정상적으로 수정되었습니다.'}, status=status.HTTP_200_OK)
