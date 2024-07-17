@@ -30,4 +30,4 @@ class User(AbstractBaseUser):
     meong = models.IntegerField(default=0)
     total_distance = models.DecimalField(max_digits=10, decimal_places=1, default=0)
     total_kilocalories = models.DecimalField(max_digits=10, decimal_places=1, default=0)
-    profile_image = models.CharField(max_length=150, null=True, default='https://blog.kakaocdn.net/dn/GHYFr/btrsSwcSDQV/UQZxkayGyAXrPACyf0MaV1/img.jpg')
+    profile_image = models.CharField(max_length=150, null=True, default='../media/user/dafault_user.jpg')
