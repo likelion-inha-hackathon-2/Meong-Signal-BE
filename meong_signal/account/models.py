@@ -29,7 +29,8 @@ class User(AbstractBaseUser):
     meong = models.IntegerField(default=0)
     total_distance = models.DecimalField(max_digits=10, decimal_places=1, default=0)
     total_kilocalories = models.DecimalField(max_digits=10, decimal_places=1, default=0)
-    profile_image = models.CharField(max_length=150, null=True, default='../media/user/dafault_user.jpg')
+    #profile_image = models.CharField(max_length=150, null=True, default='../media/user/dafault_user.jpg')
+    profile_image = models.ImageField(upload_to='user', default='user/dafault_user.jpg')
 
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -48,3 +49,8 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_superuser
+    
+    def save(self, *args, **kwargs):
+        if not self.profile_image:
+            self.profile_image = 'user/default_user.jpg'
+        super().save(*args, **kwargs)
