@@ -21,13 +21,24 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=50, unique=True)
-    pwd = models.CharField(max_length=200)
+    password = models.CharField(max_length=200)
     nickname = models.CharField(max_length=10)
-    #도로명주소
-    address_name = models.CharField(max_length=10, blank=True)
-    #상세 주소
-    road_address = models.CharField(max_length=200, null=True, blank=True)
+    road_address = models.CharField(max_length=200, null=True) # 도로명주소
     meong = models.IntegerField(default=0)
     total_distance = models.DecimalField(max_digits=10, decimal_places=1, default=0)
     total_kilocalories = models.DecimalField(max_digits=10, decimal_places=1, default=0)
     profile_image = models.CharField(max_length=150, null=True, default='../media/user/dafault_user.jpg')
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ["password", "nickname"]
+
+    def __str__(self):
+        return self.nickname
+    
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
