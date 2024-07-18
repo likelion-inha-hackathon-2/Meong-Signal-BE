@@ -13,6 +13,7 @@ from drf_yasg import openapi
 
 from .models import User
 from .serializer import *
+from .utils import get_distance
 
 
 ##########################################
@@ -95,24 +96,27 @@ def dog_list(request):
 ##########################################
 # api 4 : 심심한 상태의 강아지 조회 api
 
-# @swagger_auto_schema(
-#     method="GET", 
-#     tags=["강아지 api"],
-#     operation_summary="심심한 강아지 목록 조회 api"
-# )
-# @api_view(['GET'])
-# @authentication_classes([JWTAuthentication])
-# def boring_dog_list(request):
-#     dogs = Dog.objects.filter(status = 'B') # 심심한 강아지 목록
-#     user_address = request.user.road_address # 사용자의 위치(도로명주소)
+@swagger_auto_schema(
+    method="GET", 
+    tags=["강아지 api"],
+    operation_summary="심심한 강아지 목록 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def boring_dog_list(request):
+    dogs = Dog.objects.filter(status = 'B') # 심심한 강아지 목록
+    user_address = request.user.road_address # 사용자의 위치(도로명주소)
+    return_data = {"dogs" : []}
 
-#     # 사용자와의 거리가 2km 이내인 강아지 필터링
-#     for dog in dogs:
-#         dog_user_id = dog.user_id.id
-#         dog_user =  User.objects.get(id=dog_user_id) # 견주
-#         dog_user_address = dog_user.road_address # 견주의 위치(도로명주소)
+    # 사용자와의 거리가 2km 이내인 강아지 필터링
+    for dog in dogs:
+        dog_user_id = dog.user_id.id
+        dog_user =  User.objects.get(id=dog_user_id) # 견주
+        dog_user_address = dog_user.road_address # 견주의 위치(도로명주소)
+        distance = get_distance(user_address, dog_user_address)
 
-#         # 
-        
-    
-#     return Response(status=status.HTTP_200_OK)
+        if distance != -1 and distance < 2000: # 경로를 찾은 경우 and 경로가 2km 이내인 경우
+            boring_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":round(distance / 1000, 1), "image":dog.image.url}
+            return_data["dogs"].append(boring_dog)
+
+    return Response(return_data, status=status.HTTP_200_OK)
