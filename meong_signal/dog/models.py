@@ -17,8 +17,13 @@ class Dog(models.Model):
         ('R', 'Relax'),
         ('W', 'Walking')
     ]
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    image = models.CharField(max_length=100, default='../media/user/dafault_user.jpg') # 일단 User 기본 이미지 사용
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='R')
+    image = models.ImageField(upload_to='user', default='default/default_dog.jpg')
+        
+    def save(self, *args, **kwargs):
+        if not self.image:
+            self.image = 'default/default_dog.jpg'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -26,7 +31,7 @@ class Dog(models.Model):
 class DogTag(models.Model):
     dog_id = models.ForeignKey(Dog, on_delete=models.CASCADE)
     number = models.IntegerField()
-    count = models.IntegerField(default=0)
+    count = models.IntegerField(default=1)
 
     def __str__(self):
         r = f'DOG {self.dog_id.name}의 {self.number}번 칭호'

@@ -11,6 +11,7 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 import json
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'rest_framework',
+    'rest_framework_simplejwt',
     #
     "django.contrib.admin",
     "django.contrib.auth",
@@ -139,6 +141,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "meong_signal.wsgi.application"
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # 인증된 요청인지 확인
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT를 통한 인증방식 사용
+    ),
+}
+
+REST_USE_JWT = True
+# JWT를 기본 인증 방식으로 사용하도록 설정
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': SECRET_KEY, 
+		# JWT에서 가장 중요한 인증키입니다! 
+		# 이 키가 알려지게 되면 JWT의 인증체계가 다 털릴 수 있으니 노출되지 않게 조심해야합니다!
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+		# access token의 유효시간을 설정합니다.
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+		# refresh token의 유효시간을 설정합니다.
+    'ROTATE_REFRESH_TOKENS': False,
+		# True로 설정하면 리프레시 토큰이 사용될 때마다 새로운 리프레시 토큰이 발급됩니다.
+    'BLACKLIST_AFTER_ROTATION': True,
+		# 리프레시 토큰 회전 후, 이전의 리프레시 토큰이 블랙리스트에 추가될지 여부를 나타내는 부울 값입니다. 
+		# True로 설정하면 리프레시 토큰이 회전되면서, 이전의 리프레시 토큰은 블랙리스트에 추가되어 더 이상 사용할 수 없게 됩니다.
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
