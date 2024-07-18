@@ -22,6 +22,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('account.urls')),
+    path('walks/', include('walk.urls')),
     path('dogs/', include('dog.urls')),
     path('reviews/', include('review.urls')),
     # Swagger url
