@@ -45,11 +45,11 @@ def new_dog(request):
     tags=["강아지 api"],
     operation_summary="강아지 상태 변경 api", 
     request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'status': openapi.Schema(type=openapi.TYPE_STRING, description='new status'),
-            }
-        ),
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'status': openapi.Schema(type=openapi.TYPE_STRING, description='new status'),
+        }
+    ),
 )
 @api_view(['PATCH'])
 @authentication_classes([JWTAuthentication])
@@ -152,3 +152,23 @@ def get_representative_tags(request, dog_id):
 
 ##########################################
 
+##########################################
+# api 6 : 태그별 강아지 조회
+
+@swagger_auto_schema(
+    method="GET", 
+    tags=["강아지 api"],
+    operation_summary="태그별 강아지 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def search_by_tag(request, tag_number):
+
+    dog_tags = DogTag.objects.filter(number = tag_number)
+
+    dogs = [dog_tag.dog_id for dog_tag in dog_tags]
+
+    serializer = DogInfoSerializer(dogs, many=True)
+    return Response({"dogs": serializer.data}, status=status.HTTP_200_OK)
+
+##########################################
