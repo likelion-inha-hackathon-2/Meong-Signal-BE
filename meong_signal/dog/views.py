@@ -120,3 +120,35 @@ def boring_dog_list(request):
             return_data["dogs"].append(boring_dog)
 
     return Response(return_data, status=status.HTTP_200_OK)
+
+##########################################
+
+##########################################
+# api 5 : 강아지 대표 태그(3개) 조회 api
+
+@swagger_auto_schema(
+    method="GET", 
+    tags=["강아지 api"],
+    operation_summary="강아지 대표 태그 3개 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_representative_tags(request, dog_id):
+    dog = Dog.objects.get(id = dog_id)
+    if not dog:
+        return Response({"error" : "dog_id에 대응하는 강아지가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+    
+    tags = DogTag.objects.filter(dog_id = dog.id)
+    if not tags: # 강아지에 대한 태그가 없는 경우
+        return Response({"tags" : []}, status=status.HTTP_200_OK)
+    
+    tags = dog.dogtag_set.all().order_by('-count')[:3]  # 태그 조회 및 빈도수 기준 내림차순 정렬
+    
+    if not tags:
+        return Response({"tags": []}, status=status.HTTP_200_OK)
+    
+    serializer = DogTagSerializer(tags, many=True)
+    return Response({"tags": serializer.data}, status=status.HTTP_200_OK)
+
+##########################################
+

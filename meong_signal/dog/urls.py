@@ -7,4 +7,5 @@ urlpatterns = [
     path('status/<int:dog_id>', views.update_dog_status),
     path('all', views.dog_list),
     path('boring', views.boring_dog_list),
+    path('<int:dog_id>/tags', views.get_representative_tags),
 ]
