@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.db import IntegrityError
+from django.db.models import Sum
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -19,6 +20,7 @@ from .utils import *
 from .models import *
 
 import pandas as pd
+from datetime import datetime, timedelta
 from geopy.distance import geodesic
 
 #csv 데이터 로드
@@ -126,5 +128,34 @@ def new_walk(request):
         serializer.save()
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
+
+######################################
+
+######################################
+# 내 산책 기록 조회 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="산책 기록 조회 api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def walk_all(request):
+    user_id = request.user.id
+
+    walks = Walk.objects.filter(user_id = user_id)
+
+    total_distance = walks.aggregate(Sum('distance'))['distance__sum']
+    total_kilocalories = walks.aggregate(Sum('kilocalories'))['kilocalories__sum']
+
+    # 한 달 이내의 기록만 저장
+    today = datetime.today()
+    one_month_ago = today - timedelta(days=30)
+
+    recent_walks = walks.filter(date__gte=one_month_ago)
+
+    serializer = WalkSerializer(recent_walks, many=True)
+    return Response({"total_distance":total_distance, "total_kilocalories":total_kilocalories, "recent_walks":serializer.data}, status=200)
 
 ######################################
