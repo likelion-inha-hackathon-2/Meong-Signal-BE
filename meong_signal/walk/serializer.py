@@ -35,3 +35,14 @@ class WalkRegisterSerializer(serializers.Serializer):
 
         return walk
 
+
+# 강아지 정보 조회할 때 필요한 산책에 대한 정보
+class DogWalkRegisterSerializer(serializers.ModelSerializer):
+    nickname = serializers.SerializerMethodField() # 같이 산책한 사람의 nickname
+
+    class Meta:
+        model = Walk
+        fields = ['distance', 'nickname']
+    
+    def get_nickname(self, obj):
+        return obj.user_id.nickname if obj.user_id else None

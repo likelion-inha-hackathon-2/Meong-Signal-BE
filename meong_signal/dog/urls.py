@@ -8,5 +8,6 @@ urlpatterns = [
     path('all', views.dog_list),
     path('boring', views.boring_dog_list),
     path('<int:dog_id>/tags', views.get_representative_tags),
-    path('search-by-tag/<int:tag_number>', views.search_by_tag)
+    path('search-by-tag/<int:tag_number>', views.search_by_tag),
+    path('<int:dog_id>', views.dog_info)
 ]

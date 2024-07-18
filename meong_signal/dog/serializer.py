@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import *
 #from account.models import User
 #from account.serializer import *
+from walk.models import Walk
+from walk.serializer import WalkSerializer
 
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +37,13 @@ class DogInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dog
         fields = '__all__'
+
+class DogInfoWithStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dog
+        fields = ('name', 'gender', 'age', 'introduction', 'status')
+
+class DogWalkInfoSerializer(serializers.Serializer):
+    dog = DogSerializer()
+    walk = WalkSerializer(many=True)
+

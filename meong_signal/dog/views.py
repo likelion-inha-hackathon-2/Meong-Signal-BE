@@ -13,6 +13,8 @@ from drf_yasg import openapi
 
 from .models import User
 from .serializer import *
+from walk.serializer import WalkSerializer, DogWalkRegisterSerializer
+from walk.models import Walk
 from .utils import get_distance, finding_dogs_around_you
 
 
@@ -156,10 +158,30 @@ def search_by_tag(request, tag_number):
 
     dog_tags = DogTag.objects.filter(number = tag_number)
     dogs = [dog_tag.dog_id for dog_tag in dog_tags] # 특정 태그 강아지 목록
-    
+
     user_address = request.user.road_address # 사용자의 위치(도로명주소)
 
     return_data = finding_dogs_around_you(user_address, dogs)
     return Response(return_data, status=status.HTTP_200_OK)
 
 ##########################################
+
+##########################################
+# api 7 : 특정 강아지 정보 조회 api
+@swagger_auto_schema(
+    method="GET", 
+    tags=["강아지 api"],
+    operation_summary="특정 강아지 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def dog_info(request, dog_id):
+    dog = Dog.objects.get(id = dog_id)
+    if dog is None:
+        return Response({"error":"dog_id에 대한 강아지가 존재하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    dog_serializer = DogInfoWithStatusSerializer(dog)
+
+    walks = Walk.objects.filter(dog_id = dog_id)
+    walk_serializer = DogWalkRegisterSerializer(walks, many=True)
+
+    return Response({"dog":dog_serializer.data, "walks":walk_serializer.data}, status=status.HTTP_200_OK)
