@@ -8,9 +8,6 @@ class DogSerializer(serializers.ModelSerializer):
         model = Dog
         fields = ('name', 'gender', 'age', 'introduction')
 
-    def create(self, validated_data):
-        return Dog.objects.create(**validated_data)
-
 class DogTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = DogTag
