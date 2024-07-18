@@ -18,7 +18,12 @@ class Dog(models.Model):
         ('W', 'Walking')
     ]
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='R')
-    image = models.CharField(max_length=100, default='../media/user/dafault_user.jpg') # 일단 User 기본 이미지 사용
+    image = models.ImageField(upload_to='user', default='default/default_dog.jpg')
+        
+    def save(self, *args, **kwargs):
+        if not self.profile_image:
+            self.profile_image = 'default/default_dog.jpg'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
