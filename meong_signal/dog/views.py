@@ -79,9 +79,14 @@ def update_dog_status(request, dog_id):
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 def dog_list(request):
-    user_id = request.user.id
-
-    dogs = Dog.objects.filter(user_id = user_id)
+    user = request.user
+    if user is None:
+        return Response({"error" : "유저가 존재하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    dogs = Dog.objects.filter(user_id = user.id)
+    if not dogs: # 강아지가 한 마리도 없는 경우
+        return Response({"dogs":[]}, status=status.HTTP_200_OK)
+    
     serializer = DogInfoSerializer(dogs, many=True)
     return Response({"dogs": serializer.data}, status=status.HTTP_200_OK)
 
