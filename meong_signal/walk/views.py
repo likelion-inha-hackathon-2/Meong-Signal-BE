@@ -106,3 +106,25 @@ def save_nearby_trails(request):
             continue
 
     return Response({'status': '201', 'message': 'Nearby trails saved successfully.'}, status=201)
+
+######################################
+
+######################################
+# 산책 기록 저장 api
+
+@swagger_auto_schema(
+    method="POST",
+    tags=["walk api"],
+    operation_summary="산책 기록 저장 api",
+    request_body=WalkRegisterSerializer
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def new_walk(request):
+    serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=400)
+
+######################################
