@@ -33,3 +33,8 @@ class DogRegisterSerializer(serializers.Serializer):
                 DogTag.objects.create(dog_id=dog, **tag_data)
             
         return dog
+
+class DogInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dog
+        fields = '__all__'

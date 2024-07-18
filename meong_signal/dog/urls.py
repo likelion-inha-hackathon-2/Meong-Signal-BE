@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     path('new', views.new_dog),
     path('status/<int:dog_id>', views.update_dog_status),
+    path('all', views.dog_list)
 ]
