@@ -21,8 +21,8 @@ class Dog(models.Model):
     image = models.ImageField(upload_to='user', default='default/default_dog.jpg')
         
     def save(self, *args, **kwargs):
-        if not self.profile_image:
-            self.profile_image = 'default/default_dog.jpg'
+        if not self.image:
+            self.image = 'default/default_dog.jpg'
         super().save(*args, **kwargs)
 
     def __str__(self):
