@@ -9,5 +9,6 @@ urlpatterns = [
     path('boring', views.boring_dog_list),
     path('<int:dog_id>/tags', views.get_representative_tags),
     path('search-by-tag/<int:tag_number>', views.search_by_tag),
-    path('<int:dog_id>', views.dog_info)
+    path('<int:dog_id>', views.dog_info),
+    path('new-only-dog', views.new_dog_only)
 ]

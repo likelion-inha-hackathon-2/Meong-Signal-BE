@@ -18,7 +18,8 @@ class Dog(models.Model):
         ('W', 'Walking')
     ]
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='R')
-    image = models.ImageField(upload_to='dog', default='default/default_dog.png')
+    #image = models.ImageField(upload_to='dog', default='default/default_dog.png')
+    image = models.FileField()
         
     # def save(self, *args, **kwargs):
     #     if not self.image:

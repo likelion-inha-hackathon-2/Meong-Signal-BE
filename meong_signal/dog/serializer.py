@@ -46,4 +46,3 @@ class DogInfoWithStatusSerializer(serializers.ModelSerializer):
 class DogWalkInfoSerializer(serializers.Serializer):
     dog = DogSerializer()
     walk = WalkSerializer(many=True)
-
