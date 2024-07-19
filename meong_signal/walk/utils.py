@@ -30,3 +30,10 @@ def coordinate_send_request(road_address): # 도로명 주소 기반 위, 경도
 
     result = json.loads(str(requests.get(url, headers=headers).text))
     return result
+
+def get_calories(distance, time, weight_kg=70): # 사용자 70kg 가정, time은 분단위, distance는 km단위
+    METs = 3.5
+
+    calories_burned = time * METs * weight_kg * 3.5 / 200
+    
+    return calories_burned
