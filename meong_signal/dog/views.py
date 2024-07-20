@@ -15,7 +15,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from pathlib import Path
-
 from .serializer import *
 from walk.serializer import WalkSerializer, DogWalkRegisterSerializer
 from walk.models import Walk
