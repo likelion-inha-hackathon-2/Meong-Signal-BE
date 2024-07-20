@@ -6,5 +6,8 @@ urlpatterns = [
     path('trails', views.save_nearby_trails,name='save_nearby_trails'),
     path('new', views.new_walk),
     path('all', views.walk_all),
-    path('user-image/<int:walk_id>', views.walk_user_image)
+    path('toggle/<int:trail_id>', views.toggle_trail),
+    path('mark', views.saved_trails),
+    path('nonmark', views.recommended_trails),
+    path('user-image/<int:walk_id>', views.walk_user_image),
 ]

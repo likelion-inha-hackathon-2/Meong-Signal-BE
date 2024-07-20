@@ -161,6 +161,73 @@ def walk_all(request):
 ######################################
 
 ######################################
+# 추천 산책로 반환 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="추천 산책로 반환"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def recommended_trails(request):
+    user = request.user
+    trails = Trail.objects.filter(user_id=user, selected=False)
+    if not trails.exists():
+        return Response({'message': '해당 정보 없음'}, status=200)
+    serializer = TrailReturnSerializer(trails, many=True)
+    return Response(serializer.data, status=200)
+
+######################################
+
+######################################
+# 사용자 저장 산책로 반환 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="저장 산책로 반환"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def saved_trails(request):
+    user = request.user
+    trails = Trail.objects.filter(user_id=user, selected=True)
+    if not trails.exists():
+        return Response({'message': '해당 정보 없음'}, status=200)
+    serializer = TrailReturnSerializer(trails, many=True)
+    return Response(serializer.data, status=200)
+
+######################################
+
+######################################
+# 특정 산책로 저장, 삭제 api
+
+@swagger_auto_schema(
+    method="POST",
+    tags=["walk api"],
+    operation_summary="특정 산책로 저장, 삭제",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'trail_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='산책로 ID'),
+        }
+    )
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def toggle_trail(request, trail_id):
+    user = request.user
+
+    try:
+        trail = Trail.objects.get(user_id=user, id=trail_id)
+        trail.selected = not trail.selected
+        trail.save()
+        return Response({'status': '200', 'message': 'Trail selection status updated.'}, status=200)
+    except Trail.DoesNotExist:
+        return Response({'status': '404', 'message': 'Trail not found.'}, status=404)
+    
+######################################
 # 산책과 관련된 유저 이미지 조회 api
 
 @swagger_auto_schema(
@@ -189,3 +256,5 @@ def walk_user_image(request, walk_id):
         return Response(return_data, status=200)
     except:
         return Response({"error":"정보 불러오기에 실패했습니다."}, status=400)
+      
+     ######################################

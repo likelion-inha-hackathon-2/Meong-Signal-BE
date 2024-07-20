@@ -14,6 +14,11 @@ class TrailSerializer(serializers.ModelSerializer):
         model = Trail
         fields = '__all__'
 
+class TrailReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trail
+        fields = ('id', 'name', 'level', 'distance', 'total_time',)
+
 class WalkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Walk
@@ -22,7 +27,7 @@ class WalkSerializer(serializers.ModelSerializer):
 class WalkInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Walk
-        fields = ('dog_id', 'time', 'meong', 'distance',)
+        fields = ['dog_id', 'time', 'meong', 'distance',]
 
 class WalkRegisterSerializer(serializers.Serializer):
     walk = WalkInfoSerializer()
