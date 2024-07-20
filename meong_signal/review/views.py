@@ -20,17 +20,38 @@ from .serializer import *
 @swagger_auto_schema(
     method="POST", 
     tags=["리뷰 api"],
-    operation_summary="사용자 입장 리뷰 작성 api(별정달린 리뷰입니다.)", 
-    request_body=UserReviewRegisterSerializer
+    operation_summary="견주 입장 리뷰 작성 api(별정달린 리뷰입니다.)", 
+    request_body=UserReviewSerializer
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_rating(request):
-    serializer = UserReviewRegisterSerializer(data=request.data)
+    serializer = UserReviewSerializer(data=request.data)
 
     if serializer.is_valid():
         serializer.save()
         return Response({"message" : "리뷰가 등록되었습니다.", "data" : serializer.data},status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=400)
+
+##########################################
+
+##########################################
+# api 2 : 리뷰 작성(사용자 입장, 태그달린 리뷰)
+
+@swagger_auto_schema(
+    method="POST", 
+    tags=["리뷰 api"],
+    operation_summary="사용자 입장 리뷰 작성 api(태그달린 리뷰입니다.)", 
+    request_body=WalkReviewRegisterSerializer
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def new_review_tags(request):
+    print("request.data:", request.data)
+    serializer = WalkReviewRegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message" : "리뷰가 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
 ##########################################
