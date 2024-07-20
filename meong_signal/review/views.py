@@ -13,20 +13,60 @@ from drf_yasg import openapi
 import json
 
 from .serializer import *
+from walk.models import Walk
 
+# 작성한 리뷰 전체 조회
+
+@swagger_auto_schema(
+    method="GET", 
+    tags=["리뷰 api"],
+    operation_summary="작성한 리뷰 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_written_reviews(request):
+    return_data = {"user_review" : [], "walking_review" : []}
+    user = request.user
+
+    # 내가 남긴 유저에 대한 리뷰 -> WALK중 owner_id가 내 id -> 그에 대한 USER_REVIEW
+    user_reviews_walks = Walk.objects.filter(owner_id=user.id)
+    user_reviews = []
+    for walk in user_reviews_walks:
+        review = UserReview.objects.get(walk_id=walk)
+        if review:
+            user_reviews.append(review)
+
+    # walk_reviews = WalkingReview.objects.filter(walk_id__user_id=user)
+    # print("walk_reviews=", walk_reviews)
+
+
+    for user_review in user_reviews:
+        evaluated_user = user_review.user
+        print("evaluated_user:", evaluated_user)
+    
+    # for walk_review in walk_reviews:
+    #     evaluated_user = walk_review.owner
+    #     print("evaluated_user:", evaluated_user)
+
+    return Response(return_data, status=status.HTTP_200_OK)
 ##########################################
 # api 1 : 리뷰 작성(견주 입장, 별점달린 리뷰)
 
 @swagger_auto_schema(
     method="POST", 
     tags=["리뷰 api"],
-    operation_summary="견주 입장 리뷰 작성 api(별정달린 리뷰입니다.)", 
+    operation_summary="견주 입장 리뷰 작성 api(별점달린 리뷰입니다.)", 
     request_body=UserReviewSerializer
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_rating(request):
-    serializer = UserReviewSerializer(data=request.data)
+    data=request.data
+    data['owner_id'] = request.user.id
+    walk = Walk.objects.get(id=data['walk_id'])
+    user = walk.user_id
+    data['user_id'] = user.id
+    serializer = UserReviewSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
@@ -47,7 +87,7 @@ def new_review_rating(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_tags(request):
-    print("request.data:", request.data)
+    print("request.data:", request.data, context={'request': request})
     serializer = WalkReviewRegisterSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -119,13 +159,3 @@ def get_received_reviews(request):
 #####################################
 
 ######## 테스트용 dummy api ###########
-@swagger_auto_schema(
-    method="GET", 
-    tags=["리뷰 api"],
-    operation_summary="(dummy) 작성한 리뷰 조회 api"
-)
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-def get_written_reviews(request):
-
-    return Response(dummy_review, status=status.HTTP_200_OK)

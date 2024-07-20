@@ -24,9 +24,17 @@ class WalkReviewRegisterSerializer(serializers.Serializer):
     tags = ReviewTagSerializer(many=True)
 
     def create(self, validated_data):
+        user = self.context['request'].user
         print("validated_data:", validated_data)
         review_data = validated_data['review']
         print("review_data:", review_data)
+
+        walk_id = review_data['walk_id']
+        walk = Walk.objects.get(walk_id = walk_id)
+        owner = walk.owner_id
+
+        review_data['user_id'] = user
+        review_data['owner_id'] = owner
         review = WalkingReview.objects.create(**review_data)
 
         if 'tags' in validated_data:

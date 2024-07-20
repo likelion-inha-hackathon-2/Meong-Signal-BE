@@ -6,36 +6,40 @@ from walk.models import Walk
 
 class UserReview(models.Model):
     walk_id = models.OneToOneField(Walk, on_delete=models.CASCADE)
+    owner_id = models.ForeignKey(User, related_name="user_review_owner", on_delete=models.CASCADE) # 리뷰 남긴사람 -> 견주
+    user_id = models.ForeignKey(User, related_name="user_review_user", on_delete=models.CASCADE) # 리뷰 받은사람 -> 산책한사람
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     content = models.CharField(max_length=50)
 
-    @property
-    def user(self): # user: 산책 한 장본인 -> 리뷰 받은 사람
-        return self.walk_id.user_id
+    # @property
+    # def user(self): # user: 산책 한 장본인 -> 리뷰 받은 사람
+    #     return self.walk_id.user_id
     
-    @property
-    def owner(self): # owner: 강아지 빌려준 견주 -> 리뷰 남긴 사람
-        return self.walk_id.owner_id
+    # @property
+    # def owner(self): # owner: 강아지 빌려준 견주 -> 리뷰 남긴 사람
+    #     return self.walk_id.owner_id
     
     @property
     def dog(self): # 같이 산책한 강아지
         return self.walk_id.dog_id
 
     def __str__(self):
-        r = f'리뷰 : 견주 id {self.owner} -> 산책자 id {self.owner}'
+        r = f'리뷰 : 견주 id {self.user_id} -> 산책자 id {self.owner_id}'
         return r
 
 class WalkingReview(models.Model):
     walk_id = models.OneToOneField(Walk, on_delete=models.CASCADE)
+    owner_id = models.ForeignKey(User, related_name="walk_review_owner", on_delete=models.CASCADE) # 리뷰 받은사람 -> 견주
+    user_id = models.ForeignKey(User, related_name="walk_review_user", on_delete=models.CASCADE) # 리뷰 남긴사람 -> 산책한사람
     content = models.CharField(max_length=50)
 
-    @property
-    def user(self): # user: 산책 한 장본인 -> 리뷰 남긴 사람
-        return self.walk_id.user_id
+    # @property
+    # def user(self): # user: 산책 한 장본인 -> 리뷰 남긴 사람
+    #     return self.walk_id.user_id
     
-    @property
-    def owner(self): # owner: 강아지 빌려준 견주 -> 리뷰 받은 사람
-        return self.walk_id.owner_id
+    # @property
+    # def owner(self): # owner: 강아지 빌려준 견주 -> 리뷰 받은 사람
+    #     return self.walk_id.owner_id
     
     @property
     def dog(self): # 같이 산책한 강아지
