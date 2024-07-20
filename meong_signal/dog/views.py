@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ImproperlyConfigured
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,13 +14,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-import boto3
+from pathlib import Path
 
-from .models import User
 from .serializer import *
 from walk.serializer import WalkSerializer, DogWalkRegisterSerializer
 from walk.models import Walk
-from .utils import get_distance, finding_dogs_around_you
+from .utils import finding_dogs_around_you
 
 
 ##########################################
@@ -186,30 +189,5 @@ def dog_info(request, dog_id):
     walk_serializer = DogWalkRegisterSerializer(walks, many=True)
 
     return Response({"dog":dog_serializer.data, "walks":walk_serializer.data}, status=status.HTTP_200_OK)
-
-
-##########################################
-# 테스트용 api: 강아지만 생성
-
-@swagger_auto_schema(
-    method="POST", 
-    tags=["강아지 api"],
-    operation_summary="강아지만 추가 api(태그 x)", 
-    request_body=DogSerializer
-)
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-def new_dog_only(request):
-    user = request.user
-    data = request.data
-    data["user_id"] = user.id
-    if 'image' not in request.FILES:
-        data['image'] = 'default/default_dog.png'
-
-    serializer = DogInfoSerializer(data = data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message" : "강아지가 등록되었습니다."},status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=400)
 
 ##########################################

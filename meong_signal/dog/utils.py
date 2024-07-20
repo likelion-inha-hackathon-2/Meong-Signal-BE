@@ -3,6 +3,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 import requests
 import json
+import os
+from random import randint
+from django.utils.timezone import now
 
 from account.models import User
 
@@ -61,3 +64,13 @@ def finding_dogs_around_you(user_address, dogs):
             around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":round(distance / 1000, 1), "image":dog.image.url}
             return_data["dogs"].append(around_dog)
     return return_data
+
+# def upload_dog_image(instance, filename):
+#     if instance.id:
+#         # instance.id가 존재할 때는 파일명을 dog_{id}로 설정
+#         file_extension = os.path.splitext(filename)[1]  # 확장자 추출
+#         return f'dogs/dog_{instance.id}{file_extension}'
+#     else:
+#         # ID가 없을 때는 임시 파일명 사용
+#         file_extension = os.path.splitext(filename)[1]
+#         return f'dogs/dog_temp{file_extension}'
