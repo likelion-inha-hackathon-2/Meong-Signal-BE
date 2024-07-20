@@ -9,4 +9,5 @@ urlpatterns = [
     path('toggle/<int:trail_id>', views.toggle_trail),
     path('mark', views.saved_trails),
     path('nonmark', views.recommended_trails),
+    path('user-image/<int:walk_id>', views.walk_user_image),
 ]

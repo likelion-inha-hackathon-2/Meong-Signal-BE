@@ -228,3 +228,33 @@ def toggle_trail(request, trail_id):
         return Response({'status': '404', 'message': 'Trail not found.'}, status=404)
     
 ######################################
+# 산책과 관련된 유저 이미지 조회 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="산책 관련 유저 이미지 조회 api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def walk_user_image(request, walk_id):
+    walk = Walk.objects.get(id = walk_id)
+    dog_id = walk.dog_id.id # 강아지
+    owner_id = walk.owner_id.id # 견주
+
+    dog = Dog.objects.get(id = dog_id)
+    if dog is None:
+        return Response({"error":"강아지 정보를 찾을 수 없습니다."}, status=400)
+
+    owner = User.objects.get(id = owner_id)
+    if owner is None:
+        return Response({"error":"견주 정보를 찾을 수 없습니다."}, status=400)
+
+    try:
+        return_data = {"dog_image" : dog.image.url, "dog_name" : dog.name, "owner_image" : owner.profile_image.url, "owner_name" : owner.nickname}
+
+        return Response(return_data, status=200)
+    except:
+        return Response({"error":"정보 불러오기에 실패했습니다."}, status=400)
+      
+     ######################################
