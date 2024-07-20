@@ -5,5 +5,6 @@ urlpatterns = [
     path('coordinate', views.coordinate, name='coordinate'),
     path('trails', views.save_nearby_trails,name='save_nearby_trails'),
     path('new', views.new_walk),
-    path('all', views.walk_all)
+    path('all', views.walk_all),
+    path('user-image/<int:walk_id>', views.walk_user_image)
 ]
