@@ -28,10 +28,14 @@ class WalkRegisterSerializer(serializers.Serializer):
     walk = WalkInfoSerializer()
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self.context['request'].user # 산책한 사람
+
         walk_data = validated_data['walk']
+        dog = Dog.objects.select_related('user_id').get(id = walk_data['dog_id'].id) # 관련된 user 객체도 가져옴
+        owner = dog.user_id
+
         kilocalories = get_calories(walk_data['time'], float(walk_data['distance']))
-        walk = Walk.objects.create(user_id=user, kilocalories=kilocalories, date=date.today(), **walk_data)
+        walk = Walk.objects.create(user_id=user, owner_id = owner, kilocalories=kilocalories, date=date.today(), **walk_data)
 
         return walk
 
