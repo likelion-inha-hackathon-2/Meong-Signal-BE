@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from .models import *
 import uuid
@@ -25,17 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
             temp_file = ContentFile(image.read())
             temp_file.name = new_file_name
 
+            validated_data['profile_image'] = temp_file
             
-        user = User(
-            email=validated_data['email'],
-            nickname=validated_data['nickname'],
-            road_address=validated_data.get('road_address', ''),
-            detail_address=validated_data.get('detail_address', ''),
-            meong=validated_data.get('meong', 0),
-            total_distance=validated_data.get('total_distance', 0),
-            total_kilocalories=validated_data.get('total_kilocalories', 0),
-            profile_image = temp_file
-        )
+        user = User.objects.create(**validated_data)
 
         user.set_password(validated_data['password'])
         user.save()
