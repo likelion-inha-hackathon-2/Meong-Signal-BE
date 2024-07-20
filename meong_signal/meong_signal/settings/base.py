@@ -41,8 +41,7 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

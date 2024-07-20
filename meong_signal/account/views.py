@@ -89,6 +89,7 @@ def login(request):
 @authentication_classes([JWTAuthentication])
 def get_user_info(request):
     user = request.user
+    print("user_id:", user.id)
     if user is None:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
