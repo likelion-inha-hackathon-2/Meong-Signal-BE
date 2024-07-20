@@ -12,9 +12,30 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import json
 
-from .models import User
+from .serializer import *
 
-# Create your views here.
+##########################################
+# api 1 : 리뷰 작성(견주 입장, 별점달린 리뷰)
+
+@swagger_auto_schema(
+    method="POST", 
+    tags=["리뷰 api"],
+    operation_summary="사용자 입장 리뷰 작성 api(별정달린 리뷰입니다.)", 
+    request_body=UserReviewRegisterSerializer
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def new_review_rating(request):
+    serializer = UserReviewRegisterSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message" : "리뷰가 등록되었습니다.", "data" : serializer.data},status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=400)
+
+##########################################
+
+
 
 ######## 테스트용 dummy api ###########
 
