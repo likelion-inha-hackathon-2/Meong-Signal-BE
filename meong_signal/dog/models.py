@@ -18,15 +18,14 @@ class Dog(models.Model):
         ('W', 'Walking')
     ]
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='R')
-    image = models.ImageField(upload_to='dog', default='default/default_dog.png')
-        
-    # def save(self, *args, **kwargs):
-    #     if not self.image:
-    #         self.image = 'default/default_dog.png'
-    #     super().save(*args, **kwargs)
-
+    image = models.ImageField(upload_to='dogs', default='dogs/default_dog.png')
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.image:
+            self.image = 'dogs/default_dog.png'
+        super().save(*args, **kwargs)
 
 class DogTag(models.Model):
     dog_id = models.ForeignKey(Dog, on_delete=models.CASCADE)

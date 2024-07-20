@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ImproperlyConfigured
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,12 +14,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from pathlib import Path
 
-from .models import User
 from .serializer import *
 from walk.serializer import WalkSerializer, DogWalkRegisterSerializer
 from walk.models import Walk
-from .utils import get_distance, finding_dogs_around_you
+from .utils import finding_dogs_around_you
 
 
 ##########################################
@@ -185,3 +189,5 @@ def dog_info(request, dog_id):
     walk_serializer = DogWalkRegisterSerializer(walks, many=True)
 
     return Response({"dog":dog_serializer.data, "walks":walk_serializer.data}, status=status.HTTP_200_OK)
+
+##########################################

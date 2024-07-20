@@ -4,6 +4,8 @@ from .models import *
 #from account.serializer import *
 from walk.models import Walk
 from walk.serializer import WalkSerializer
+import uuid
+from django.core.files.base import ContentFile
 
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,13 +17,30 @@ class DogTagSerializer(serializers.ModelSerializer):
         model = DogTag
         fields = ('number',)
 
+def generate_uuid_filename(extension):
+    unique_id = uuid.uuid4().hex
+    return f'{unique_id}.{extension}'
+
 class DogRegisterSerializer(serializers.Serializer):
     dog = DogSerializer()
     tags = DogTagSerializer(many=True)
 
     def create(self, validated_data):
-        dog_data = validated_data['dog']
         user = self.context['request'].user  # JWT 인증을 통해 로그인된 사용자 정보 가져오기
+        dog_data = validated_data['dog']
+        if 'image' in dog_data:
+            # 파일의 확장자 추출
+            image = dog_data['image']
+            file_extension = image.name.split('.')[-1]
+            
+            # UUID를 사용한 새 파일 이름 생성
+            new_file_name = generate_uuid_filename(file_extension)
+
+            # 파일을 메모리에 저장
+            temp_file = ContentFile(image.read())
+            temp_file.name = new_file_name
+
+            dog_data['image'] = temp_file
 
         dog = Dog.objects.create(user_id=user, **dog_data) # dog 객체 생성
 
@@ -46,4 +65,3 @@ class DogInfoWithStatusSerializer(serializers.ModelSerializer):
 class DogWalkInfoSerializer(serializers.Serializer):
     dog = DogSerializer()
     walk = WalkSerializer(many=True)
-
