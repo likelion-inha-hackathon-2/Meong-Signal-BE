@@ -30,7 +30,7 @@ class WalkReviewRegisterSerializer(serializers.Serializer):
         print("review_data:", review_data)
 
         walk_id = review_data['walk_id']
-        walk = Walk.objects.get(walk_id = walk_id)
+        walk = Walk.objects.get(id = walk_id.id)
         owner = walk.owner_id
 
         review_data['user_id'] = user

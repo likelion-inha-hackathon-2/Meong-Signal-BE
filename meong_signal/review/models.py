@@ -46,7 +46,7 @@ class WalkingReview(models.Model):
         return self.walk_id.dog_id
 
     def __str__(self):
-        r = f'산책 리뷰 : 산책자 id {self.user} -> 견주 id {self.owner}'
+        r = f'산책 리뷰 : 산책자 id {self.user_id} -> 견주 id {self.owner_id}'
         return r
 
 

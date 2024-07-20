@@ -28,25 +28,24 @@ def get_written_reviews(request):
     return_data = {"user_review" : [], "walking_review" : []}
     user = request.user
 
-    # 내가 남긴 유저에 대한 리뷰 -> WALK중 owner_id가 내 id -> 그에 대한 USER_REVIEW
-    user_reviews_walks = Walk.objects.filter(owner_id=user.id)
-    user_reviews = []
-    for walk in user_reviews_walks:
-        review = UserReview.objects.get(walk_id=walk)
-        if review:
-            user_reviews.append(review)
+    # 내가 남긴 유저에 대한 리뷰 -> UserReview중 owner_id가 내 id
+    user_reviews = UserReview.objects.filter(owner_id = user.id)
+    print("user_reviews:", user_reviews)
 
-    # walk_reviews = WalkingReview.objects.filter(walk_id__user_id=user)
-    # print("walk_reviews=", walk_reviews)
+    # 내가 남긴 산책에 대한 리뷰 -> WalkingReview중 user_id가 내 id
+    walk_reviews = WalkingReview.objects.filter(user_id = user.id)
+    print("walk_reviews:", walk_reviews)
 
 
     for user_review in user_reviews:
-        evaluated_user = user_review.user
-        print("evaluated_user:", evaluated_user)
+        evaluated_user = user_review.user_id
+        return_data["user_review"].append({"evaluated_user_name":evaluated_user.nickname, "evaluated_user_profile":evaluated_user.profile_image.url, "rating":user_review.rating, "content":user_review.content})
     
-    # for walk_review in walk_reviews:
-    #     evaluated_user = walk_review.owner
-    #     print("evaluated_user:", evaluated_user)
+    for walk_review in walk_reviews:
+        evaluated_user = walk_review.owner_id
+        tags = ReviewTag.objects.filter(review_id = walk_review.id)
+        tags_list = [{"number": tag.number} for tag in tags]
+        return_data["walking_review"].append({"evaluated_user_name":evaluated_user.nickname, "evaluated_user_profile":evaluated_user.profile_image.url, "content":walk_review.content, "tags" : tags_list})
 
     return Response(return_data, status=status.HTTP_200_OK)
 ##########################################
@@ -87,8 +86,7 @@ def new_review_rating(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_tags(request):
-    print("request.data:", request.data, context={'request': request})
-    serializer = WalkReviewRegisterSerializer(data=request.data)
+    serializer = WalkReviewRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
         return Response({"message" : "리뷰가 등록되었습니다."},status=status.HTTP_201_CREATED)
