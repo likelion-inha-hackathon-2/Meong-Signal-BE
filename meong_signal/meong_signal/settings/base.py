@@ -52,7 +52,7 @@ STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1',]
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr']
 
 
 # Application definition
@@ -132,6 +132,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://meong-signal-back.p-e.kr",
     "https://meong-signal-back.p-e.kr",
+    "http://msignal.kro.kr",
+    "https://msignal.kro.kr"
 ]
 
 ROOT_URLCONF = "meong_signal.urls"
