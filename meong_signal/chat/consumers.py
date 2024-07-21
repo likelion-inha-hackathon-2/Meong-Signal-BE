@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import AnonymousUser
+from .models import Message, ChatRoom
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -13,34 +14,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # JWT token authentication
         query_string = self.scope['query_string'].decode()
-        print(f"Query string: {query_string}")  # Query string 값을 출력하여 확인
-
-        token_key, token_value = query_string.split('=', 1)
-        print(f"Token key: {token_key}, Token value: {token_value}")  # Token key와 value 값을 출력하여 확인
+        token_key, token_value = query_string.split('=')
 
         if token_key != 'token':
-            print("Invalid token key")
             await self.close()
             return
         
         self.user = await self.get_user_from_token(token_value)
 
         if self.user.is_anonymous:
-            print("Anonymous user")
             await self.close()
         else:
-            try:
-                print('self.channel_layer:', self.channel_layer)
-                print('self.channel_name:', self.channel_name)
-                await self.channel_layer.group_add(
-                    self.room_group_name,
-                    self.channel_name
-                )
-                print('Added to group')
-                await self.accept()
-            except Exception as e:
-                print(f"Error during group add or accept: {e}")
-                await self.close()
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+            await self.accept()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -53,6 +42,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         sender = self.user
+
+        # 메시지를 데이터베이스에 저장
+        await self.save_message(self.room_id, sender, message)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -83,5 +75,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user = jwt_authenticator.get_user(validated_token)
             return user
         except (InvalidToken, TokenError) as e:
-            print(f"Token error: {str(e)}")
             return AnonymousUser()
+
+    @database_sync_to_async
+    def save_message(self, room_id, sender, message):
+        room = ChatRoom.objects.get(id=room_id)
+        Message.objects.create(room=room, sender=sender, content=message)
