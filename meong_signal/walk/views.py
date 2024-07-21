@@ -263,15 +263,22 @@ def walk_user_image(request, walk_id):
 # 산책 정보와 그에 달린 리뷰 조회 api
 
 @swagger_auto_schema(
-    method="GET",
+    method="POST",
     tags=["walk api"],
     operation_summary="산책 정보와 그에 달린 리뷰 조회",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'walk_id': openapi.Schema(type=openapi.TYPE_NUMBER, description='산책 id'),
+        }
+    ),
 )
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def walk_and_review_info(request, walk_id):
+def walk_and_review_info(request):
     return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : ""}
     user = request.user
+    walk_id = request.data['walk_id']
     try:
         walk = Walk.objects.get(id = walk_id)
     
