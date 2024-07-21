@@ -127,18 +127,28 @@ def dog_list(request):
 # api 4 : 심심한 상태의 강아지 조회 api
 
 @swagger_auto_schema(
-    method="GET", 
+    method="POST", 
     tags=["강아지 api"],
-    operation_summary="심심한 강아지 목록 조회 api"
+    operation_summary="심심한 강아지 목록 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
+            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도'),
+        }
+    ),
 )
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def boring_dog_list(request):
     dogs = Dog.objects.filter(status = 'B') # 심심한 강아지 목록
-    user_address = request.user.road_address # 사용자의 위치(도로명주소)
-
-    return_data = finding_dogs_around_you(user_address, dogs)
-
+    try:
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+    except:
+        return Response({"message":"심심한 강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if 'error' in return_data:
+        return Response({"message": return_data['error']}, status=status.HTTP_400_BAD_REQUEST)
     return Response(return_data, status=status.HTTP_200_OK)
 
 ##########################################
@@ -176,20 +186,32 @@ def get_representative_tags(request, dog_id):
 # api 6 : 태그별 강아지 조회 -> 반경 2km 이내만 return
 
 @swagger_auto_schema(
-    method="GET", 
+    method="POST", 
     tags=["강아지 api"],
-    operation_summary="태그별 강아지 조회 api"
+    operation_summary="태그별 강아지 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
+            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도'),
+        }
+    ),
 )
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def search_by_tag(request, tag_number):
 
     dog_tags = DogTag.objects.filter(number = tag_number)
     dogs = [dog_tag.dog_id for dog_tag in dog_tags] # 특정 태그 강아지 목록
 
-    user_address = request.user.road_address # 사용자의 위치(도로명주소)
+    try:
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+    except:
+        return Response({"message":"강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if 'error' in return_data:
+        return Response({"message": return_data['error']}, status=status.HTTP_400_BAD_REQUEST)
 
-    return_data = finding_dogs_around_you(user_address, dogs)
     return Response(return_data, status=status.HTTP_200_OK)
 
 ##########################################
