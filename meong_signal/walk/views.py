@@ -146,6 +146,9 @@ def walk_all(request):
 
     walks = Walk.objects.filter(user_id = user_id)
 
+    if not walks: # 산책 기록이 없는 경우
+        return Response({"total_distance":0, "total_kilocalories":0, "recent_walks":[]}, status=200)
+
     total_distance = walks.aggregate(Sum('distance'))['distance__sum']
     total_kilocalories = walks.aggregate(Sum('kilocalories'))['kilocalories__sum']
 
