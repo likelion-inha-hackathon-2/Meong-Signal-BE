@@ -14,6 +14,11 @@ class TrailSerializer(serializers.ModelSerializer):
         model = Trail
         fields = '__all__'
 
+class TrailRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trail
+        fields = ('name', 'level', 'distance', 'total_time')
+
 class TrailReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trail

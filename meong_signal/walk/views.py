@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Sum
 
@@ -77,7 +78,7 @@ def coordinate(request):
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def save_nearby_trails(request):
+def get_nearby_trails(request):
     latitude = request.data['latitude']
     longitude = request.data['longitude']
 
@@ -157,26 +158,6 @@ def walk_all(request):
 ######################################
 
 ######################################
-# 추천 산책로 반환 api
-
-@swagger_auto_schema(
-    method="GET",
-    tags=["walk api"],
-    operation_summary="추천 산책로 반환"
-)
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-def recommended_trails(request):
-    user = request.user
-    trails = Trail.objects.filter(user_id=user, selected=False)
-    if not trails.exists():
-        return Response({'message': '해당 정보 없음'}, status=200)
-    serializer = TrailReturnSerializer(trails, many=True)
-    return Response(serializer.data, status=200)
-
-######################################
-
-######################################
 # 사용자 저장 산책로 반환 api
 
 @swagger_auto_schema(
@@ -188,7 +169,7 @@ def recommended_trails(request):
 @authentication_classes([JWTAuthentication])
 def saved_trails(request):
     user = request.user
-    trails = Trail.objects.filter(user_id=user, selected=True)
+    trails = Trail.objects.filter(user_id=user)
     if not trails.exists():
         return Response({'message': '해당 정보 없음'}, status=200)
     serializer = TrailReturnSerializer(trails, many=True)
@@ -197,32 +178,53 @@ def saved_trails(request):
 ######################################
 
 ######################################
-# 특정 산책로 저장, 삭제 api
+# 특정 산책로 저장 api
 
 @swagger_auto_schema(
     method="POST",
     tags=["walk api"],
-    operation_summary="특정 산책로 저장, 삭제",
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'trail_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='산책로 ID'),
-        }
-    )
+    operation_summary="특정 산책로 저장",
+    request_body=TrailRegisterSerializer
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def toggle_trail(request, trail_id):
+def toggle_trail(request):
     user = request.user
+    data = request.data
+    data['user_id'] = user.id
 
     try:
-        trail = Trail.objects.get(user_id=user, id=trail_id)
-        trail.selected = not trail.selected
-        trail.save()
-        return Response({'status': '200', 'message': 'Trail selection status updated.'}, status=200)
-    except Trail.DoesNotExist:
-        return Response({'status': '404', 'message': 'Trail not found.'}, status=404)
+        trail_exist = Trail.objects.get(name=data['name'])
+        # If the trail exists, return 409 Conflict
+        return Response({"error": "이미 저장된 산책로입니다."}, status=409)
+    except ObjectDoesNotExist:
+        # Create new Trail instance if it doesn't exist
+        serializer = TrailSerializer(data = data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+
+        return Response({"error" : "올바르지 않은 산책로 형식입니다."}, status = 400)
+
+######################################
+# 특정 산책로 삭제 api
+
+@swagger_auto_schema(
+    method="DELETE",
+    tags=["walk api"],
+    operation_summary="특정 산책로 삭제"
+)
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+def delete_trail(request, trail_id):
+    trail = Trail.objects.get(id = trail_id)
+    if not trail:
+        return Response({"error" : "해당 id에 대한 산책로가 존재하지 않습니다."}, status=200)
     
+    trail.delete()
+    return Response({"message" : "산책로를 삭제하였습니다."}, status=200)
+
 ######################################
 # 산책과 관련된 유저 이미지 조회 api
 
