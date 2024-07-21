@@ -10,8 +10,9 @@
 
     <script>
         const roomId = "{{ room_id }}";
+        const accessToken = encodeURIComponent("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxNTg4MzMwLCJpYXQiOjE3MjE1ODQ3MzAsImp0aSI6IjY2ZGE4NjIxMDI3NTRhMjg5MGM3YmVkMjJlZWRiOTE2IiwidXNlcl9pZCI6Mn0.QYStBqF5a-Hc2VRhaRH9ohmr-KS4JUuFLLf0-t0k5hA");
         const chatSocket = new WebSocket(
-            'ws://' + window.location.host + '/ws/chat/' + roomId + '/'
+            'ws://' + window.location.host + '/ws/chat/' + roomId + '/?token=' + accessToken
         );
 
         chatSocket.onmessage = function(e) {
