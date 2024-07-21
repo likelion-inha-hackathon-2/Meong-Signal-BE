@@ -19,11 +19,11 @@ from .serializer import *
 from walk.serializer import WalkSerializer, DogWalkRegisterSerializer
 from walk.models import Walk
 from .utils import finding_dogs_around_you
+from django.http import QueryDict
 
 
 ##########################################
 # api 1 : 강아지 등록
-
 @swagger_auto_schema(
     method="POST", 
     tags=["강아지 api"],
@@ -33,12 +33,37 @@ from .utils import finding_dogs_around_you
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_dog(request):
-    serializer = DogRegisterSerializer(data=request.data, context={'request': request})
+    data = request.data
+    if isinstance(request.data, QueryDict):
+        data = QueryDict.dict(data)
+        
+    dog_serializer = DogSerializer(data=data, context={'request': request})
 
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message" : "강아지가 등록되었습니다."},status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=400)
+    # 데이터에서 tags에 해당하는 키를 찾아 리스트에 추가
+    tags_data = []
+    if len(tags_data) > 3:
+        return Response("error:태그의 최초 등록은 3개까지 가능합니다.", status=400)
+
+    for key, value in data.items():
+        if key.startswith('tags['):  # 키가 'tags['로 시작하는지 확인
+            value = int(value)
+            # tags의 숫자 부분을 파싱하여 리스트에 추가
+            index = int(key.split('[')[1].split(']')[0])  # 'tags[0]'에서 숫자만 추출
+            tags_data.append({
+                'number': value
+            })
+            if value < 1 or value > 9:
+                return Response("error:태그 번호는 1번부터 9번까지만 가능합니다.", status=400)
+
+    if dog_serializer.is_valid():
+        dog = dog_serializer.save()  # Dog 인스턴스 생성 및 저장
+
+        for tag_data in tags_data:
+            DogTag.objects.create(dog_id = dog, number = tag_data['number'])
+
+        return Response({"message" : "강아지가 등록되었습니다."}, status=200)
+
+    return Response(dog_serializer.errors, status=400)
 
 ##########################################
 

@@ -12,6 +12,32 @@ class DogSerializer(serializers.ModelSerializer):
         model = Dog
         fields = ('name', 'gender', 'age', 'introduction', 'image')
 
+    def create(self, validated_data):
+        
+        print("validated_data:", validated_data)
+
+        request = self.context.get('request')
+        user = request.user
+
+        if 'image' in validated_data:
+            # 파일의 확장자 추출
+            image = validated_data['image']
+            file_extension = image.name.split('.')[-1]
+            
+            # UUID를 사용한 새 파일 이름 생성
+            new_file_name = generate_uuid_filename(file_extension)
+
+            # 파일을 메모리에 저장
+            temp_file = ContentFile(image.read())
+            temp_file.name = new_file_name
+
+            validated_data['image'] = temp_file
+
+            #return Dog.objects.create(user_id = user, image = temp_file, **validated_data)
+        dog =  Dog.objects.create(user_id = user, **validated_data)
+
+        return dog
+    
 class DogTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = DogTag
@@ -51,6 +77,8 @@ class DogRegisterSerializer(serializers.Serializer):
                 DogTag.objects.create(dog_id=dog, **tag_data)
             
         return dog
+    
+
 
 class DogInfoSerializer(serializers.ModelSerializer):
     class Meta:
