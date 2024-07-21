@@ -28,7 +28,7 @@ class DogRegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context['request'].user  # JWT 인증을 통해 로그인된 사용자 정보 가져오기
         dog_data = validated_data['dog']
-        if 'image' in dog_data:
+        if 'image' in validated_data:
             # 파일의 확장자 추출
             image = dog_data['image']
             file_extension = image.name.split('.')[-1]
