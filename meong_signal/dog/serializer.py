@@ -10,7 +10,7 @@ from django.core.files.base import ContentFile
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dog
-        fields = ('name', 'gender', 'age', 'introduction')
+        fields = ('name', 'gender', 'age', 'introduction', 'image')
 
 class DogTagSerializer(serializers.ModelSerializer):
     class Meta:
