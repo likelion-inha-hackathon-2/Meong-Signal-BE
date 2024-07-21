@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -19,6 +19,7 @@ from account.models import User
 from .serializer import *
 from .utils import *
 from .models import *
+from review.models import *
 
 import pandas as pd
 from datetime import datetime, timedelta
@@ -256,3 +257,56 @@ def walk_user_image(request, walk_id):
         return Response({"error":"정보 불러오기에 실패했습니다."}, status=400)
       
      ######################################
+
+
+######################################
+# 산책 정보와 그에 달린 리뷰 조회 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="산책 정보와 그에 달린 리뷰 조회",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def walk_and_review_info(request, walk_id):
+    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : ""}
+    user = request.user
+    try:
+        walk = Walk.objects.get(id = walk_id)
+    
+        dog = Dog.objects.get(id=walk.dog_id.id)
+        return_data["dog_name"] = dog.name
+
+        owner = User.objects.get(id = user.id)
+        return_data["my_profile_image"] = owner.profile_image.url
+
+        walker_exist = User.objects.filter(id = walk.user_id.id)
+        if walker_exist.exists():
+            walker = walker_exist[0]
+            return_data["reviewer_profile_image"] = walker.profile_image.url
+
+            # 평균 별점 구하기
+            average_rating = UserReview.objects.filter(user_id=walker.id).aggregate(Avg('rating'))
+            if average_rating['rating__avg']: # None이 아니면
+                return_data["reviewer_average_rating"] = average_rating['rating__avg']
+
+            # 강아지와 해당 유저의 산책 총 거리 구하기
+            total_distance_sum = Walk.objects.filter(dog_id = dog.id, user_id = walker.id).aggregate(Sum('distance'))
+            return_data["total_distance"] = total_distance_sum['distance__sum']
+
+        user_review_exist = UserReview.objects.filter(walk_id = walk_id) # user_review -> 별점달린 리뷰 -> 내가 남긴거
+        if user_review_exist.exists():
+            user_review = user_review_exist[0]
+            return_data["my_review"] = user_review.content
+
+        walking_review_exist = WalkingReview.objects.filter(walk_id = walk_id) # user_review -> 태그달린 리뷰 -> 내가 받은거
+        if walking_review_exist.exists():
+            walking_review = walking_review_exist[0]
+            return_data['received_review'] = walking_review.content
+        
+        return Response(return_data, status=200)
+
+    
+    except ObjectDoesNotExist:
+        return Response({"error" : "산책 id에 대한 데이터가 존재하지 않습니다."}, status=400)
