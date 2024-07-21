@@ -61,26 +61,25 @@ def coordinate(request):
 
 
 ######################################
-# 가까운 산책로 데이터 DB에 저장하는 api
+# 가까운 산책로 데이터 조회하는 api
 
 @swagger_auto_schema(
     method="POST",
     tags=["walk api"],
-    operation_summary="가까운 산책로 데이터 저장",
+    operation_summary="가까운 산책로 데이터 조회",
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='집 주소의 위도'),
-            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='집 주소의 경도')
+            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
+            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도')
         }
     ),
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def save_nearby_trails(request):
-    user = request.user
-    latitude = user.latitude
-    longitude = user.longitude
+    latitude = request.data['latitude']
+    longitude = request.data['longitude']
 
     if not latitude or not longitude:
         return Response({'status': '400', 'message': 'Latitude and longitude are required.'}, status=400)
@@ -93,21 +92,15 @@ def save_nearby_trails(request):
     )
 
     nearest_trails = trail_data.nsmallest(2, 'distance')
+    return_data = {"recommend_trails":[]}
 
     for _, row in nearest_trails.iterrows():
         try:
-            Trail.objects.create(
-                user_id=user,
-                name=row['WLK_COURS_FLAG_NM'],
-                level=row['COURS_LEVEL_NM'],
-                distance=row['COURS_LT_CN'],
-                total_time=row['COURS_TIME_CN'],
-                selected=False
-            )
+            trail = {'name' : row['WLK_COURS_FLAG_NM'], 'level' : row['COURS_LEVEL_NM'], 'distance' : row['COURS_LT_CN'], 'total_time' : row['COURS_TIME_CN']}
+            return_data["recommend_trails"].append(trail)
         except IntegrityError:
             continue
-
-    return Response({'status': '201', 'message': 'Nearby trails saved successfully.'}, status=201)
+    return Response(return_data, status=201)
 
 ######################################
 
