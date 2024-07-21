@@ -63,10 +63,7 @@ INSTALLED_APPS = [
     "dog",
     "review",
     "walk",
-    "chat",
     #
-    'channels',
-    'daphne',
     'corsheaders',
     'drf_yasg',
     'rest_framework',
@@ -157,8 +154,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "meong_signal.wsgi.application"
 
-ASGI_APPLICATION = 'meong_signal.asgi.application'
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',  # 인증된 요청인지 확인
@@ -231,14 +226,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
