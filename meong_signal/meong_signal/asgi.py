@@ -17,9 +17,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meong_signal.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
+})
+
+'''
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            #websocket_urlpatterns
+            websocket_urlpatterns
         )
     ),
-})
+'''
