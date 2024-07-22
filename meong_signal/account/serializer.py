@@ -4,6 +4,7 @@ from .models import *
 from achievement.models import *
 import uuid
 from django.core.files.base import ContentFile
+import requests
 
 def generate_uuid_filename(extension):
     unique_id = uuid.uuid4().hex
@@ -15,7 +16,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        if 'profile_image' in validated_data:
+
+        if 'profile_image' not in validated_data: # 일반 회원가입 중 프로필사진 입력한 경우
             # 파일의 확장자 추출
             image = validated_data['profile_image']
             file_extension = image.name.split('.')[-1]
@@ -60,3 +62,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = '__all__'
+        

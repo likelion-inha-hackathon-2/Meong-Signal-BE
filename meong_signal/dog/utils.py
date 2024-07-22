@@ -74,7 +74,7 @@ def get_distance_v2(origin_address, destination_road_address):
 
 # 사용자와의 거리가 2km 이내인 강아지 필터링
 def finding_dogs_around_you(lat1, lon1, dogs):
-    return_data = {"dogs":[]}
+    return_data = {"dogs":[], "count":0}
 
     for dog in dogs:
         dog_user_id = dog.user_id.id
@@ -93,8 +93,9 @@ def finding_dogs_around_you(lat1, lon1, dogs):
         print("distance:", distance)
         
         if distance <= 2: # 경로를 찾은 경우 and 경로가 2km 이내인 경우
-            around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":float(f"{distance:.{1}f}"), "image":dog.image.url}
+            around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":float(f"{distance:.{1}f}"), "image":dog.image.url, "status":dog.status}
             return_data["dogs"].append(around_dog)
+            return_data["count"] += 1
  
     return return_data
 

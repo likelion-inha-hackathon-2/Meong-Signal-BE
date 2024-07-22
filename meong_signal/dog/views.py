@@ -237,3 +237,34 @@ def dog_info(request, dog_id):
     return Response({"dog":dog_serializer.data, "walks":walk_serializer.data}, status=status.HTTP_200_OK)
 
 ##########################################
+
+
+##########################################
+# api 8 : 모든 상태의 강아지 조회 api
+
+@swagger_auto_schema(
+    method="POST", 
+    tags=["강아지 api"],
+    operation_summary="모든 강아지 목록 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
+            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도'),
+        }
+    ),
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def all_status_dog_list(request):
+    dogs = Dog.objects.all() # 모든
+    try:
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+    except:
+        return Response({"message":"강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if 'error' in return_data:
+        return Response({"message": return_data['error']}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(return_data, status=status.HTTP_200_OK)
+
+##########################################
