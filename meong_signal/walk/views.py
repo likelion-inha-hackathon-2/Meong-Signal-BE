@@ -20,10 +20,12 @@ from .serializer import *
 from .utils import *
 from .models import *
 from review.models import *
+from achievement.models import *
 
 import pandas as pd
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
+import decimal
 
 #csv 데이터 로드
 def load_trail_data():
@@ -121,6 +123,28 @@ def new_walk(request):
     serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
+        distance = decimal.Decimal(request.data["walk"]["distance"])
+
+        # 관련 업적 갱신
+        achievements = UserAchievement.objects.filter(user_id = request.user.id, is_achieved = False)
+        for achievement in achievements:
+            try:
+                original_achievement = Achievement.objects.get(id = achievement.achievement_id.id)
+                if original_achievement.category == 'dog':
+                    if achievement.count + 1 >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
+                        achievement.is_achieved = True
+                    achievement.count += 1
+                    achievement.save()
+
+                else: # achievement.category == 'walking'
+                    if achievement.count + distance >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
+                        achievement.is_achieved = True
+                    achievement.count += distance
+                    achievement.save()
+
+            except ObjectDoesNotExist:
+                pass
+
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
