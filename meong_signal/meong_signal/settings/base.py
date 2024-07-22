@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "dog",
     "review",
     "walk",
+    "shop",
     #
     'corsheaders',
     'drf_yasg',
