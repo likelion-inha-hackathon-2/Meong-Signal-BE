@@ -23,7 +23,7 @@ from walk.models import Walk
     method="POST", 
     tags=["리뷰 api"],
     operation_summary="견주 입장 리뷰 작성 api(별점달린 리뷰입니다.)", 
-    request_body=UserReviewSerializer
+    request_body=UserReviewInputSerializer
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
