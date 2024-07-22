@@ -35,7 +35,6 @@ from io import BytesIO
 @permission_classes([AllowAny])
 def signup(request):
     data = request.data
-
     if "social_id" in data: # 소셜 로그인인 경우, 이미지를 url로 받아오기 때문에 따로 처리
         dict_data = QueryDict.dict(data)
 

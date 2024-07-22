@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser):
-    social_id = models.IntegerField(default=0) # 소셜회원만 사용
+    social_id = models.BigIntegerField(default=0) # 소셜회원만 사용
     email = models.EmailField(max_length=50, unique=True)
     password = models.CharField(max_length=200)
     nickname = models.CharField(max_length=10)
