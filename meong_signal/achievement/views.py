@@ -89,3 +89,41 @@ def new_achievement_about_user(request):
         if not UserAchievement.objects.filter(achievement_id = achievement, user_id = user).exists():
             UserAchievement.objects.create(achievement_id = achievement, user_id = user, count = 0)
     return Response({"message": "회원과 관련된 업적이 생성되었습니다."}, status=200)
+
+@swagger_auto_schema(
+    method="POST",
+    tags=["achievement api"],
+    operation_summary="대표 업적으로 설정하는 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER, description='user_achievement_id'),
+        }
+    ),
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def set_representative(request):
+
+    user_achievement_id = request.data['id']
+    try:
+        achievement = UserAchievement.objects.get(id = user_achievement_id)
+    except ObjectDoesNotExist:
+        return Response({"error" : "id에 대한 UserAchievement를 찾을 수 없습니다."}, status=400)
+
+    # 기존 대표로 등록되어있던 업적이 있으면 대표에서 해제
+    try:
+        rep_achievement = UserAchievement.objects.get(id = user_achievement_id, is_representative = True)
+        rep_achievement.is_representative = False
+        rep_achievement.save()
+    except ObjectDoesNotExist:
+        pass
+    
+    if achievement.is_achieved:
+        achievement.is_representative = True
+        achievement.save()
+        return Response({"message": "대표로 등록되었습니다.", "representative_achievement_id" : achievement.id, "representative_achievement_title" : achievement.title}, status=200)
+
+    return Response({"message": "아직 완료되지 않은 업적입니다."}, status=400)
+
+    
