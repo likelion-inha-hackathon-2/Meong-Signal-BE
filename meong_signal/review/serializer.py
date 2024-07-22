@@ -9,6 +9,11 @@ class UserReviewSerializer(serializers.ModelSerializer):
         model = UserReview
         fields = '__all__'
 
+class UserReviewInputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserReview
+        fields = ('rating', 'content', 'walk_id',)
+
 class WalkReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = WalkingReview
