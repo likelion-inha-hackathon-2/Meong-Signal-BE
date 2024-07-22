@@ -74,3 +74,18 @@ def get_achievement(request):
         return_data[category].append(achievement_data)
 
     return Response(return_data, status=200)
+
+@swagger_auto_schema(
+    method="POST",
+    tags=["achievement api"],
+    operation_summary="현재 회원에 대한 업적 생성 api(client는 사용하지 않는 api입니다. 업적 목록이 보이지 않을 시 실행해주세요.)"
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def new_achievement_about_user(request):
+    user = request.user
+    achievements = Achievement.objects.all()
+    for achievement in achievements:
+        if not UserAchievement.objects.filter(achievement_id = achievement, user_id = user).exists():
+            UserAchievement.objects.create(achievement_id = achievement, user_id = user, count = 0)
+    return Response({"message": "회원과 관련된 업적이 생성되었습니다."}, status=200)
