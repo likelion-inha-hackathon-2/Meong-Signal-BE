@@ -1,6 +1,7 @@
 
 from rest_framework import serializers
 from .models import *
+from achievement.models import *
 import uuid
 from django.core.files.base import ContentFile
 
@@ -29,6 +30,11 @@ class UserSerializer(serializers.ModelSerializer):
             validated_data['profile_image'] = temp_file
             
         user = User.objects.create(**validated_data)
+
+        # 회원가입과 동시에 회원의 업적 생성
+        achievements = Achievement.objects.all()
+        for achievement in achievements:
+            UserAchievement.objects.create(achievement_id = achievement, user_id = user, count = 0)
 
         user.set_password(validated_data['password'])
         user.save()

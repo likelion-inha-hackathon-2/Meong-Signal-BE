@@ -5,7 +5,7 @@ from account.models import User
 class Achievement(models.Model):
     title = models.CharField(max_length=20)
     total_count = models.DecimalField(max_digits=5, decimal_places=1)
-
+    category = models.CharField(max_length=20)
     def __str__(self):
         return self.title
 
