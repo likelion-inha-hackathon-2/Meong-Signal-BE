@@ -21,7 +21,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./secrets.json
+      - ./.env.prod
     depends_on:
       - db
       - redis
@@ -30,7 +30,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./secrets.json
+      - ./.env.prod.db
   redis:
     image: redis:alpine # 이렇게 해시를 태그로 사용합니다.
     ports:
