@@ -6,6 +6,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import AnonymousUser
 from .models import Message, ChatRoom
+from django.utils import timezone
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -43,8 +44,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         sender = self.user
 
-        # 메시지를 데이터베이스에 저장
-        await self.save_message(self.room_id, sender, message)
+        # 메시지를 데이터베이스에 저장하고, 저장 시간을 가져옵니다.
+        timestamp = await self.save_message(self.room_id, sender, message)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -52,16 +53,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'sender': sender.nickname,
+                'timestamp': timestamp
             }
         )
 
     async def chat_message(self, event):
         message = event['message']
         sender = event['sender']
+        timestamp = event['timestamp']
 
         await self.send(text_data=json.dumps({
             'message': message,
             'sender': sender,
+            'timestamp': timestamp
         }))
 
     @database_sync_to_async
@@ -80,4 +84,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, room_id, sender, message):
         room = ChatRoom.objects.get(id=room_id)
-        Message.objects.create(room=room, sender=sender, content=message)
+        msg = Message.objects.create(room=room, sender=sender, content=message)
+        return msg.timestamp.isoformat()  # 시간을 ISO 포맷으로 변환하여 반환
