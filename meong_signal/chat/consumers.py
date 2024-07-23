@@ -9,7 +9,9 @@ from .models import Message, ChatRoom
 from django.utils import timezone
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    #클라이언트가 웹소켓에 연결하려고 할 때 호출
     async def connect(self):
+    
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.room_group_name = f'chat_{self.room_id}'
 
@@ -68,6 +70,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'timestamp': timestamp
         }))
 
+
+
     @database_sync_to_async
     def get_user_from_token(self, token):
         try:
@@ -80,7 +84,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return user
         except (InvalidToken, TokenError) as e:
             return AnonymousUser()
-
+        
+    #이 데코레이터! 동기적 db 연산 -> 비동기적 db 연산
     @database_sync_to_async
     def save_message(self, room_id, sender, message):
         room = ChatRoom.objects.get(id=room_id)

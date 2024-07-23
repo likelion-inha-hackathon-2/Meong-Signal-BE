@@ -137,7 +137,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://meong-signal-back.p-e.kr",
     "https://meong-signal-back.p-e.kr",
     "http://msignal.kro.kr",
-    "https://msignal.kro.kr"
+    "https://msignal.kro.kr",
+    "http://meong-signal-back.o-r.kr",
+    "https://meong-signal-back.o-r.kr",
+    "http://meongsignal.kro.kr",
+    "https://meongsignal.kro.kr"
 ]
 
 ROOT_URLCONF = "meong_signal.urls"
@@ -238,7 +242,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('15.164.185.48', 6379)],
+            "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
         },
     },
 }
