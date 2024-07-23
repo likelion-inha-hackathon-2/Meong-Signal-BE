@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
 
 from .models import ChatRoom, Message
 from .serializer import *
@@ -10,6 +11,7 @@ from account.models import User
 
 from django.shortcuts import render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 def user1room(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
@@ -89,3 +91,48 @@ def chat_rooms(request):
     return Response(serializer.data)
 
 ############################
+
+############################
+# 채팅방 입장 api 구현
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["chat api"],
+    operation_summary="채팅방 입장",
+    responses={
+        200: openapi.Response(
+            description="성공적으로 채팅방에 입장",
+            examples={
+                "application/json": {
+                    "room_id": 1,
+                    "room_name": "owner_user - user_user",
+                    "other_user_nickname": "example_user",
+                    "other_user_profile_image": "http://example.com/media/users/default_user.jpg",
+                    "websocket_url": "ws://example.com/ws/chat/1/?token=exampletoken"
+                }
+            }
+        ),
+        401: "Unauthorized",
+        404: "Not Found"
+    }
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def enter_chat_room(request, room_id):
+    chat_room = get_object_or_404(ChatRoom, id=room_id)
+    
+    # 상대방 정보 가져오기
+    if request.user == chat_room.owner_user:
+        other_user = chat_room.user_user
+    else:
+        other_user = chat_room.owner_user
+
+    response_data = {
+        'room_id': chat_room.id,
+        'room_name': chat_room.name,
+        'other_user_nickname': other_user.nickname,
+        'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url),
+        'websocket_url': f"ws://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
+    }
+
+    return Response(response_data, status=status.HTTP_200_OK)

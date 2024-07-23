@@ -7,4 +7,5 @@ urlpatterns = [
     path('rooms',views.chat_rooms),
     path('user1/<int:room_id>', views.user1room, name='chat-room'),
     path('user2/<int:room_id>', views.user2room, name='chat-room'),
+    path('rooms/<int:room_id>', views.enter_chat_room),
 ]

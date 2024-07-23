@@ -44,16 +44,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         sender = self.user
 
-        # 메시지를 데이터베이스에 저장하고, 저장 시간을 가져옵니다.
-        timestamp = await self.save_message(self.room_id, sender, message)
+        timestamp = timezone.now()
+        await self.save_message(self.room_id, sender, message, timestamp)
 
         await self.channel_layer.group_send(
             self.room_group_name,
-            {
+            {   
                 'type': 'chat_message',
                 'message': message,
                 'sender': sender.nickname,
-                'timestamp': timestamp
+                'timestamp': timestamp.isoformat(),
             }
         )
 
