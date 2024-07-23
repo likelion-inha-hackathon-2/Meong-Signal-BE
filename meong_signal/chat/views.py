@@ -136,3 +136,25 @@ def enter_chat_room(request, room_id):
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
+
+############################
+
+############################
+# 채팅방의 이전 메시지를 조회하는 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["chat api"],
+    operation_summary="채팅방 메시지 조회",
+    responses={200: MessageSerializer(many=True)}
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_chat_messages(request, room_id):
+    chat_room = get_object_or_404(ChatRoom, id=room_id)
+    messages = Message.objects.filter(room=chat_room).order_by('timestamp')
+    
+    serializer = MessageSerializer(messages, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+############################
