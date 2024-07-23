@@ -4,9 +4,15 @@ from rest_framework import serializers
 from .models import ChatRoom, Message
 
 class MessageSerializer(serializers.ModelSerializer):
+
+    sender_profile_image = serializers.SerializerMethodField()
+    
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'content', 'timestamp', 'read']
+        fields = ['id', 'room', 'sender', 'sender_profile_image', 'content', 'timestamp', 'read']
+
+    def get_sender_profile_image(self, obj):
+        return obj.sender.profile_image.url if obj.sender.profile_image else None
 
 class ChatRoomSerializer(serializers.ModelSerializer):
     class Meta:

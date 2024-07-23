@@ -153,7 +153,6 @@ def enter_chat_room(request, room_id):
 def get_chat_messages(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
     messages = Message.objects.filter(room=chat_room).order_by('timestamp')
-    
     serializer = MessageSerializer(messages, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
