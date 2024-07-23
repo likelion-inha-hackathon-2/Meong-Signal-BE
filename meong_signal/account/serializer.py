@@ -16,9 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        if 'profile_image' not in validated_data: # 일반 회원가입 중 프로필사진 입력한 경우
+
+        if 'profile_image' in validated_data and ('social_id' not in validated_data or validated_data["social_id"] == "no"): # 일반 회원가입 중 프로필사진 입력한 경우
             # 파일의 확장자 추출
             image = validated_data['profile_image']
+            print("image:", image)
+
             file_extension = image.name.split('.')[-1]
             
             # UUID를 사용한 새 파일 이름 생성
@@ -29,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
             temp_file.name = new_file_name
 
             validated_data['profile_image'] = temp_file
-            
+
         user = User.objects.create(**validated_data)
 
         # 회원가입과 동시에 회원의 업적 생성
