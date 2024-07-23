@@ -7,5 +7,6 @@ urlpatterns = [
     path('rooms/<int:pk>', ChatRoomDetail.as_view(), name='chatroom-detail'),
     path('rooms/<int:room_id>/messages', MessageList.as_view(), name='message-list'),
     path('rooms/<int:room_id>/messages/view', ChatRoomMessagesView.as_view(), name='chatroom-messages-view'),
-    path('<int:room_id>', views.room, name='chat-room'),
+    path('user1/<int:room_id>', views.user1room, name='chat-room'),
+    path('user2/<int:room_id>', views.user2room, name='chat-room'),
 ]

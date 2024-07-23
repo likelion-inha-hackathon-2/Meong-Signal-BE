@@ -8,11 +8,19 @@ from account.models import User
 
 from django.shortcuts import render, get_object_or_404
 
-def room(request, room_id):
+def user1room(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
-    return render(request, 'chat/room.html', {
+    return render(request, 'chat/user1.html', {
         'room_id': chat_room.id
     })
+
+
+def user2room(request, room_id):
+    chat_room = get_object_or_404(ChatRoom, id=room_id)
+    return render(request, 'chat/user2.html', {
+        'room_id': chat_room.id
+    })
+
 
 
 class ChatRoomList(generics.ListCreateAPIView):
