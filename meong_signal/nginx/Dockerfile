@@ -9,3 +9,6 @@ COPY . /usr/src/app/
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN pip install daphne
+
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
