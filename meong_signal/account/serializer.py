@@ -16,7 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-
         if 'profile_image' not in validated_data: # 일반 회원가입 중 프로필사진 입력한 경우
             # 파일의 확장자 추출
             image = validated_data['profile_image']

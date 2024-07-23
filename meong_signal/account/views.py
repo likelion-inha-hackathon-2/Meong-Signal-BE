@@ -35,26 +35,35 @@ from io import BytesIO
 @permission_classes([AllowAny])
 def signup(request):
     data = request.data
-    if "social_id" in data: # 소셜 로그인인 경우, 이미지를 url로 받아오기 때문에 따로 처리
+    if "social_id" in data and "social_id" != "None": # 소셜 로그인인 경우, 이미지를 url로 받아오기 때문에 따로 처리
         dict_data = QueryDict.dict(data)
 
         response = requests.get(dict_data["profile_image"])
         image_file = BytesIO(response.content)
         file_extension = dict_data["profile_image"].split('.')[-1]
+        content_type = response.headers['Content-Type']
         new_file_name = generate_uuid_filename(file_extension)
 
         temp_file = TemporaryUploadedFile(
             name=new_file_name,
-            content_type='image/jpeg',  
+            content_type=content_type, 
             size=len(response.content),
             charset=None
         )
 
         temp_file.write(image_file.getvalue())
+        temp_file.seek(0)
+        
         filtered_data = {key: value for key, value in data.items() if key != "profile_image"}
         filtered_data["profile_image"] = temp_file
 
         serializer = UserSerializer(data = filtered_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': '201', 'message': 'All data added successfully'}, status=201)
+        else:
+            print("serializer.errors:", serializer.errors)  # 유효성 검사 에러 출력
+            return Response({'status': '400', 'message': serializer.errors}, status=400)
 
     else:
         serializer = UserSerializer(data = data)
@@ -194,10 +203,46 @@ def kakao_login_callback(request):
     user_information = requests.get(kakao_user_api, headers=header).json()
 
     try: # 회원가입 되어있는 유저인 경우, 토큰 return
-        user = User.objects.get(social_id = user_information["id"])
+        user_social_id = str(user_information["id"])
+        user = User.objects.get(social_id = user_social_id)
         token = RefreshToken.for_user(user)
         return Response({'is_user' : 1, 'refresh_token': str(token),
                         'access_token': str(token.access_token), }, status=status.HTTP_200_OK)
 
     except User.DoesNotExist: # 회원가입 필요한 경우, 일단 프론트로 유저 정보 넘기고, 도로명주소 포함해서 다시 signup 요청하게 함!
-        return Response({"is_user" : 0, "social_id":user_information['id'], "email" : user_information['kakao_account']['email'], "nickname":user_information['properties']['nickname'], "profile_image" : user_information["properties"]["profile_image"]}, status=200)
+        return Response({"is_user" : 0, "social_id":user_social_id, "email" : user_information['kakao_account']['email'], "nickname":user_information['properties']['nickname'], "profile_image" : user_information["properties"]["profile_image"]}, status=200)
+
+
+##########################################
+# 소셜 로그인: 네이버
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def naver_login_callback(request):
+    # 인가 코드를 받아서 토큰 받아와서 로그인 or 회원가입 요청하기
+    data = {
+        "grant_type" : "authorization_code",
+        "client_id" : get_secret("NAVER_CLIENT_ID"),
+        "client_secret" : get_secret("NAVER_CLIENT_SECRET"),
+        "code" : request.data["code"],
+        "state" : request.data["state"]
+    }
+
+    naver_token_url = "https://nid.naver.com/oauth2.0/token" # 토큰 받아오는 api
+    access_token = requests.post(naver_token_url, data=data).json()['access_token']
+
+    naver_user_api = "https://openapi.naver.com/v1/nid/me" # 유저 정보 받아오는 api
+    header = {"Authorization" : f"Bearer {access_token}"}
+    
+    user_information_result = requests.get(naver_user_api, headers=header).json()
+    if user_information_result["message"] == "success": # 정보 조회 성공한 경우
+        user_information = user_information_result["response"]
+        try: # 회원가입 되어있는 유저인 경우, 토큰 return
+            user = User.objects.get(social_id = user_information["id"])
+            token = RefreshToken.for_user(user)
+            return Response({'is_user' : 1, 'refresh_token': str(token),
+                            'access_token': str(token.access_token), }, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist: # 회원가입 필요한 경우, 일단 프론트로 유저 정보 넘기고, 도로명주소 포함해서 다시 signup 요청하게 함!
+            return Response({"is_user" : 0, "social_id":user_information["id"], "email" : user_information['email'], "nickname":user_information['nickname'], "profile_image" : user_information["profile_image"]}, status=200)
+    return Response({"error" : "회원 찾기 실패"},status=400)
