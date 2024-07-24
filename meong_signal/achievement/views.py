@@ -111,6 +111,7 @@ def set_representative(request):
     except ObjectDoesNotExist:
         return Response({"error" : "id에 대한 UserAchievement를 찾을 수 없습니다."}, status=400)
 
+    print("achievement:", achievement)
     # 기존 대표로 등록되어있던 업적이 있으면 대표에서 해제
     try:
         rep_achievement = UserAchievement.objects.get(id = user_achievement_id, is_representative = True)
@@ -119,10 +120,18 @@ def set_representative(request):
     except ObjectDoesNotExist:
         pass
     
+    print("여기까지")
+    if achievement.is_representative:
+        return Response({"message": "이미 대표로 등록된 업적입니다.."}, status=200)
+
     if achievement.is_achieved:
+        print("is_achieved True")
         achievement.is_representative = True
+        print("is_representativa 설정")
         achievement.save()
-        return Response({"message": "대표로 등록되었습니다.", "representative_achievement_id" : achievement.id, "representative_achievement_title" : achievement.title}, status=200)
+        print("수정")
+        print("")
+        return Response({"message": "대표로 등록되었습니다."}, status=200)
 
     return Response({"message": "아직 완료되지 않은 업적입니다."}, status=400)
 
