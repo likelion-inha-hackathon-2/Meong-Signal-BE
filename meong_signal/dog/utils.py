@@ -90,7 +90,6 @@ def finding_dogs_around_you(lat1, lon1, dogs):
     
 
         distance = haversine(point1, point2)
-        print("distance:", distance)
         
         if distance <= 2: # 경로를 찾은 경우 and 경로가 2km 이내인 경우
             around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":float(f"{distance:.{1}f}"), "image":dog.image.url, "status":dog.status}
