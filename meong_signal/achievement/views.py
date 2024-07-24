@@ -111,7 +111,6 @@ def set_representative(request):
     except ObjectDoesNotExist:
         return Response({"error" : "id에 대한 UserAchievement를 찾을 수 없습니다."}, status=400)
 
-    print("achievement:", achievement)
     # 기존 대표로 등록되어있던 업적이 있으면 대표에서 해제
     try:
         rep_achievement = UserAchievement.objects.get(id = user_achievement_id, is_representative = True)
@@ -120,19 +119,37 @@ def set_representative(request):
     except ObjectDoesNotExist:
         pass
     
-    print("여기까지")
     if achievement.is_representative:
-        return Response({"message": "이미 대표로 등록된 업적입니다.."}, status=200)
+        return Response({"message": "이미 대표로 등록된 업적입니다."}, status=200)
 
     if achievement.is_achieved:
-        print("is_achieved True")
         achievement.is_representative = True
-        print("is_representativa 설정")
         achievement.save()
-        print("수정")
-        print("")
         return Response({"message": "대표로 등록되었습니다."}, status=200)
 
     return Response({"message": "아직 완료되지 않은 업적입니다."}, status=400)
 
-    
+
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["achievement api"],
+    operation_summary="대표 업적 조회 api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_represent(request):
+    user_id = request.user.id
+    return_data = {"title" : "", "id" : 0}
+    try:
+        rep_achievement = UserAchievement.objects.get(user_id = user_id, is_representative = True)
+        try:
+            original_achievement = Achievement.objects.get(id = rep_achievement.achievement_id.id)
+            title = original_achievement.title
+            return_data["title"] = title
+        except:
+            return Response({"error":"업적 정보 찾기 실패"}, status=400)
+        return_data["id"] = rep_achievement.id
+    except ObjectDoesNotExist:
+        pass
+    return Response(return_data, status=200)
