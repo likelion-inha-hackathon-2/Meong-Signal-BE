@@ -5,3 +5,6 @@ db.sqlite3
 migrations
 secrets.json
 meongenv
+.env.prod
+.env.prod.db
+.env
