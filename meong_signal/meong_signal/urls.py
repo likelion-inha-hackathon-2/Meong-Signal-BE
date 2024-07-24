@@ -27,6 +27,7 @@ urlpatterns = [
     path('reviews/', include('review.urls')),
     path('achievements/', include('achievement.urls')),
     path('shop/', include('shop.urls')),
+    path('walk-status/', include('walk_status.urls')),
     # Swagger url
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

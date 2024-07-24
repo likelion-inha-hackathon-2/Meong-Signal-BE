@@ -3,6 +3,7 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 import json
 import pymysql
+import environ
 
 pymysql.install_as_MySQLdb()
 
@@ -10,24 +11,17 @@ DEBUG = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-secret_file = BASE_DIR / 'secrets.json'
+env = environ.Env(DEBUG=(bool, True))
 
-with open(secret_file) as file:
-    secrets = json.loads(file.read())
+environ.Env.read_env(
+	env_file = os.path.join(BASE_DIR, '.env')
+)
+USER = env('DB_USER') 
+NAME = env('DB_NAME') 
+PASSWORD = env('DB_PASSWORD') 
+HOST = env('DB_HOST') 
 
-def get_secret(setting,secrets_dict = secrets):
-    try:
-        return secrets_dict[setting]
-    except KeyError:
-        error_msg = f'Set the {setting} environment variable'
-        raise ImproperlyConfigured(error_msg)
-
-USER = get_secret('USER') 
-NAME = get_secret('NAME') 
-PASSWORD = get_secret('PASSWORD') 
-HOST = get_secret('HOST') 
-
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'meongsignal.kro.kr', 'meong-signal.o-r.kr']
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'meongsignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal.kro.kr']
 
 DATABASES = {
     "default": {
