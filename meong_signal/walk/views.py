@@ -145,6 +145,15 @@ def new_walk(request):
             except ObjectDoesNotExist:
                 pass
 
+        # User DB의 distance, count 갱신
+        try:
+            user = User.objects.get(id = request.user.id)
+            user.total_distance += distance
+            user.total_kilocalories = get_calories(distance, request.data["walk"]["time"])
+            user.save()
+        
+        except ObjectDoesNotExist:
+                return Response({"error" : "user를 찾을 수 없습니다."}, status=400)
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
