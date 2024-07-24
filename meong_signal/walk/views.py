@@ -120,6 +120,15 @@ def get_nearby_trails(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_walk(request):
+    # 강아지 주인의 id와 user id가 같을시 return
+    user = request.user.id
+    try:
+        dog = Dog.objects.get(id = request.data["walk"]["dog_id"])
+        if dog.user_id.id == user:
+            return Response({"error" : "본인의 강아지에 대한 산책 기록은 저장할 수 없습니다."}, status=400)
+    except:
+        return Response({"error" : "강아지를 찾을 수 없습니다."}, status=400)
+
     serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
