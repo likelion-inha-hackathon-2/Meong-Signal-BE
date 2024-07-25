@@ -12,30 +12,26 @@ from django.core.exceptions import ImproperlyConfigured
 import json
 import os
 from datetime import timedelta
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-secret_file = BASE_DIR / 'secrets.json'
+env = environ.Env(DEBUG=(bool, True))
 
-with open(secret_file) as file:
-    secrets = json.loads(file.read())
+environ.Env.read_env(
+	env_file = os.path.join(BASE_DIR, '.env')
+)
 
-def get_secret(setting,secrets_dict = secrets):
-    try:
-        return secrets_dict[setting]
-    except KeyError:
-        error_msg = f'Set the {setting} environment variable'
-        raise ImproperlyConfigured(error_msg)
 
-SECRET_KEY = get_secret('SECRET_KEY') 
+SECRET_KEY = env('SECRET_KEY') 
 # s3
-AWS_ACCESS_KEY_ID = get_secret('AWS_ACCESS_KEY_ID') 
-AWS_SECRET_ACCESS_KEY = get_secret('AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID') 
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_REGION = 'ap-northeast-2'
 
 # S3 Storages
-AWS_STORAGE_BUCKET_NAME = get_secret('AWS_STORAGE_BUCKET_NAME')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
@@ -52,19 +48,23 @@ STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'meongsignal.kro.kr', 'meong-signal.o-r.kr']
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal-back.o-r.kr', 'backend', '15.164.185.48', 'meongsignal.kro.kr']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "account",
     "achievement",
     "dog",
     "review",
     "walk",
+    "chat",
     "shop",
+    "walk_status",
     #
+    'channels',
     'corsheaders',
     'drf_yasg',
     'rest_framework',
@@ -129,14 +129,23 @@ CORS_ALLOW_HEADERS = [  # 허용할 헤더
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+  #로컬
     "http://localhost:3000",
     "http://127.0.0.1:8000",
+  #BE
     "http://meong-signal-back.p-e.kr",
     "https://meong-signal-back.p-e.kr",
-    "http://meongsignal.kro.kr",
-    "https://meongsignal.kro.kr",
+    "http://meong-signal-back.o-r.kr",
+    "https://meong-signal-back.o-r.kr",
+    "http://meong-signal.kro.kr",
+    "https://meong-signal.kro.kr"
+  #FE
     "http://meong-signal.o-r.kr",
     "https://meong-signal.o-r.kr",
+    "http://msignal.kro.kr",
+    "https://msignal.kro.kr",
+    "http://meongsignal.kro.kr",
+    "https://meongsignal.kro.kr"
 ]
 
 ROOT_URLCONF = "meong_signal.urls"
@@ -158,6 +167,36 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "meong_signal.wsgi.application"
+ASGI_APPLICATION = 'meong_signal.asgi.application'
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.environ.get('REDIS_HOST'), 6379)],
+        },
+    },
+}
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+#         },
+#     },
+# }
+
+ASGI_APPLICATION = 'meong_signal.asgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -175,7 +214,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY, 
 		# JWT에서 가장 중요한 인증키입니다! 
 		# 이 키가 알려지게 되면 JWT의 인증체계가 다 털릴 수 있으니 노출되지 않게 조심해야합니다!
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
 		# access token의 유효시간을 설정합니다.
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 		# refresh token의 유효시간을 설정합니다.
@@ -231,6 +270,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+        },
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
