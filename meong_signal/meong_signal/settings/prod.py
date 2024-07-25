@@ -27,7 +27,7 @@ NAME = get_secret('NAME')
 PASSWORD = get_secret('PASSWORD') 
 HOST = get_secret('HOST') 
 
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', '15.164.185.48', 'meong-signal-back-o-r.kr', 'meongsignal.kro.kr', 'https://meong-signal.o-r.kr/']
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal-back.o-r.kr', 'meongsignal.kro.kr', 'meong-signal.o-r.kr', 'backend']
 
 DATABASES = {
     "default": {
