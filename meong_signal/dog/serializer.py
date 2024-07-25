@@ -88,7 +88,7 @@ class DogInfoSerializer(serializers.ModelSerializer):
 class DogInfoWithStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dog
-        fields = ('name', 'gender', 'age', 'introduction', 'status')
+        fields = ('name', 'gender', 'age', 'introduction', 'status', 'image')
 
 class DogWalkInfoSerializer(serializers.Serializer):
     dog = DogSerializer()
