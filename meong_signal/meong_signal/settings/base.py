@@ -17,21 +17,26 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-env = environ.Env(DEBUG=(bool, True))
+secret_file = BASE_DIR / 'secrets.json'
 
-environ.Env.read_env(
-	env_file = os.path.join(BASE_DIR, '.env')
-)
+with open(secret_file) as file:
+    secrets = json.loads(file.read())
 
+def get_secret(setting,secrets_dict = secrets):
+    try:
+        return secrets_dict[setting]
+    except KeyError:
+        error_msg = f'Set the {setting} environment variable'
+        raise ImproperlyConfigured(error_msg)
 
-SECRET_KEY = env('SECRET_KEY') 
+SECRET_KEY = get_secret('SECRET_KEY') 
 # s3
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID') 
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY_ID = get_secret('AWS_ACCESS_KEY_ID') 
+AWS_SECRET_ACCESS_KEY = get_secret('AWS_SECRET_ACCESS_KEY')
 AWS_REGION = 'ap-northeast-2'
 
 # S3 Storages
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_STORAGE_BUCKET_NAME = get_secret('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
@@ -182,7 +187,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(os.environ.get('REDIS_HOST'), 6379)],
+            "hosts": [(get_secret('REDIS_HOST'), 6379)],
         },
     },
 }
