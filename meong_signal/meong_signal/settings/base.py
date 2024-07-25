@@ -138,7 +138,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://meong-signal-back.o-r.kr",
     "https://meong-signal-back.o-r.kr",
     "http://meong-signal.kro.kr",
-    "https://meong-signal.kro.kr"
+    "https://meong-signal.kro.kr",
   #FE
     "http://meong-signal.o-r.kr",
     "https://meong-signal.o-r.kr",
