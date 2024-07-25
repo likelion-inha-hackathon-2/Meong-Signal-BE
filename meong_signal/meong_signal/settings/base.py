@@ -63,8 +63,11 @@ INSTALLED_APPS = [
     "dog",
     "review",
     "walk",
+    "chat",
     "shop",
     #
+    'channels',
+    'daphne',
     'corsheaders',
     'drf_yasg',
     'rest_framework',
@@ -129,14 +132,21 @@ CORS_ALLOW_HEADERS = [  # 허용할 헤더
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+  #로컬
     "http://localhost:3000",
     "http://127.0.0.1:8000",
+  #BE
     "http://meong-signal-back.p-e.kr",
     "https://meong-signal-back.p-e.kr",
-    "http://meongsignal.kro.kr",
-    "https://meongsignal.kro.kr",
+    "http://meong-signal-back.o-r.kr",
+    "https://meong-signal-back.o-r.kr",
+  #FE
     "http://meong-signal.o-r.kr",
     "https://meong-signal.o-r.kr",
+    "http://msignal.kro.kr",
+    "https://msignal.kro.kr",
+    "http://meongsignal.kro.kr",
+    "https://meongsignal.kro.kr"
 ]
 
 ROOT_URLCONF = "meong_signal.urls"
@@ -159,6 +169,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "meong_signal.wsgi.application"
 
+ASGI_APPLICATION = 'meong_signal.asgi.application'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',  # 인증된 요청인지 확인
@@ -175,7 +187,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY, 
 		# JWT에서 가장 중요한 인증키입니다! 
 		# 이 키가 알려지게 되면 JWT의 인증체계가 다 털릴 수 있으니 노출되지 않게 조심해야합니다!
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
 		# access token의 유효시간을 설정합니다.
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 		# refresh token의 유효시간을 설정합니다.
@@ -231,6 +243,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+        },
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

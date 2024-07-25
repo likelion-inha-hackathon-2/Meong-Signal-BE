@@ -25,6 +25,7 @@ urlpatterns = [
     path('walks/', include('walk.urls')),
     path('dogs/', include('dog.urls')),
     path('reviews/', include('review.urls')),
+    path('chat/', include('chat.urls')),
     path('achievements/', include('achievement.urls')),
     path('shop/', include('shop.urls')),
     # Swagger url
