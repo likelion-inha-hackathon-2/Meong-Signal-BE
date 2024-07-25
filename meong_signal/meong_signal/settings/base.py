@@ -132,22 +132,21 @@ CORS_ALLOW_HEADERS = [  # 허용할 헤더
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    #로컬
+  #로컬
     "http://localhost:3000",
     "http://127.0.0.1:8000",
-    #백엔드
+  #BE
     "http://meong-signal-back.p-e.kr",
     "https://meong-signal-back.p-e.kr",
     "http://meong-signal-back.o-r.kr",
     "https://meong-signal-back.o-r.kr",
-    #프론트
+  #FE
+    "http://meong-signal.o-r.kr",
+    "https://meong-signal.o-r.kr",
     "http://msignal.kro.kr",
     "https://msignal.kro.kr",
     "http://meongsignal.kro.kr",
-    "https://meongsignal.kro.kr",
-    "http://meong-signal.o-r.kr",
-    "https://meong-signal.o-r.kr"
-
+    "https://meongsignal.kro.kr"
 ]
 
 ROOT_URLCONF = "meong_signal.urls"
