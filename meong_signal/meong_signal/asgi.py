@@ -11,8 +11,7 @@ import os
 from django.core.asgi import get_asgi_application
 #from chat.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meong_signal.settings')
-
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meong_signal.settings.prod')
 django_asgi_app = get_asgi_application()
 
 # channels 라우팅과 미들웨어는 Django 초기화 이후에 가져와야 합니다.
@@ -23,12 +22,12 @@ import walk_status.routing  # 이제 이 코드는 안전하게 실행될 수 �
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": 
+    "websocket":
         AuthMiddlewareStack(
             AllowedHostsOriginValidator(
             URLRouter(
                 walk_status.routing.websocket_urlpatterns
-            )     
+            )
         ),
     ),
 })
