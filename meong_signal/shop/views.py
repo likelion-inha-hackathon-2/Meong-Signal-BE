@@ -134,3 +134,20 @@ def charger_meong(request):
     
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+##########################################
+
+##########################################
+# 현재 멍 return
+
+@swagger_auto_schema(
+    method="GET", 
+    tags=["강아지 api"],
+    operation_summary="특정 강아지 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def return_meong(request):
+    user = request.user
+
+    return Response({"current_meong": user.meong}, status=status.HTTP_200_OK)
