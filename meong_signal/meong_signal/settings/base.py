@@ -48,7 +48,7 @@ STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'meongsignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal.kro.kr']
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal-back.o-r.kr', 'backend', '15.164.185.48', 'meongsignal.kro.kr']
 
 
 # Application definition
