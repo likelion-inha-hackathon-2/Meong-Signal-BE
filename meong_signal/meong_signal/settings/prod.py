@@ -11,13 +11,11 @@ DEBUG = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
 secret_file = BASE_DIR / 'secrets.json'
 
 with open(secret_file) as file:
     secrets = json.loads(file.read())
-    
+
 def get_secret(setting,secrets_dict = secrets):
     try:
         return secrets_dict[setting]

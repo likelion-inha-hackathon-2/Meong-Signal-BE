@@ -187,6 +187,15 @@ CHANNEL_LAYERS = {
     },
 }
 
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+#         },
+#     },
+# }
+
 ASGI_APPLICATION = 'meong_signal.asgi.application'
 
 REST_FRAMEWORK = {
