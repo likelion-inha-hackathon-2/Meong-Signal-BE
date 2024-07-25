@@ -268,3 +268,53 @@ def all_status_dog_list(request):
     return Response(return_data, status=status.HTTP_200_OK)
 
 ##########################################
+
+
+dummy_data = {
+  "dogs": [
+    {
+      "id": 1,
+      "name": "관리자2의강아지",
+      "road_address": "미추홀구 인하로 100",
+      "distance": 0.5,
+      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/cdf354c07a6647fa85c262bd5ddd6bba.JPG",
+      "status": "B"
+    },
+    {
+      "id": 2,
+      "name": "절미",
+      "road_address": "미추홀구 인하로 100",
+      "distance": 0.5,
+      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/711f0d3fee264d658b48518779f29e2c.png",
+      "status": "R"
+    },
+    {
+      "id": 6,
+      "name": "밥풀이",
+      "road_address": "인천 미추홀구 경인남길 118",
+      "distance": 0.3,
+      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/182b947ca82a48039b0bad4354c260e9.jpg",
+      "status": "R"
+    }
+  ],
+  "count": 3
+}
+
+# dummy api : 모든 상태의 강아지 조회 api
+
+@swagger_auto_schema(
+    method="POST", 
+    tags=["강아지 api"],
+    operation_summary="모든 상태 강아지 조회 dummy api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
+            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도'),
+        }
+    ),
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def dummy_all_status(request):
+    return Response(dummy_data, status=200)

@@ -55,6 +55,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal-back.o-r.kr', 'backend', '15.164.185.48', 'meongsignal.kro.kr']
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
