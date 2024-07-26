@@ -368,3 +368,24 @@ def walk_and_review_info(request):
     
     except ObjectDoesNotExist:
         return Response({"error" : "산책 id에 대한 데이터가 존재하지 않습니다."}, status=400)
+    
+######################################
+# 산책과 관련된 유저 이미지 조회 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="이번주 산책 기록 조회(챌린지 관련) api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def this_week_challenge(request):
+    start_of_week = get_start_of_week()
+    week_distance, unique_dog_count = 0, 0
+    walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
+
+    if walks.exists():
+        week_distance = walks.aggregate(Sum('distance'))['distance__sum']
+        unique_dog_count = walks.values('dog_id').distinct().count()
+
+    return Response({"week_distance":week_distance, "week_dogs":unique_dog_count}, status=200)

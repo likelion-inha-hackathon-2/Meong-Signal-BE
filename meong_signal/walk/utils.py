@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 import requests
 import json
+import datetime
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,3 +38,10 @@ def get_calories(distance, time, weight_kg=70): # 사용자 70kg 가정, time은
     calories_burned = time * METs * weight_kg * 3.5 / 200
     
     return calories_burned
+
+def get_start_of_week(): # 이번 주 월요일 계산
+    # 현재 날짜
+    now = datetime.date.today()
+    # 현재 날짜에서 요일을 뺀다 (월요일이 0, 일요일이 6)
+    start_of_week = now - datetime.timedelta(days=now.weekday())
+    return start_of_week
