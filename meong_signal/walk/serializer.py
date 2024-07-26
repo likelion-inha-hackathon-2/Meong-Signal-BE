@@ -5,6 +5,8 @@ from .models import *
 from .utils import *
 import uuid
 from django.core.files.base import ContentFile
+from review.models import UserReview
+from django.core.exceptions import ObjectDoesNotExist
 
 class RoadAddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,10 +77,20 @@ class WalkRegisterSerializer(serializers.ModelSerializer):
 # 강아지 정보 조회할 때 필요한 산책에 대한 정보
 class DogWalkRegisterSerializer(serializers.ModelSerializer):
     nickname = serializers.SerializerMethodField() # 같이 산책한 사람의 nickname
+    is_reviewed = serializers.SerializerMethodField()
 
     class Meta:
         model = Walk
-        fields = ['id', 'distance', 'nickname', 'date']
+        fields = ['id', 'distance', 'nickname', 'date', 'is_reviewed']
     
     def get_nickname(self, obj):
         return obj.user_id.nickname if obj.user_id else None
+
+    def get_is_reviewed(self, obj): # 견주 입장에서 작성한 리뷰()가 있는지
+        try:
+            UserReview.objects.get(owner_id = obj.owner_id.id, walk_id = obj.id)
+            # 리뷰 작성한경우
+            return 1
+        except ObjectDoesNotExist:
+            return 0
+        
