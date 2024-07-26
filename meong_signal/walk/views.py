@@ -122,10 +122,11 @@ def get_nearby_trails(request):
 @authentication_classes([JWTAuthentication])
 def new_walk(request):
     user = request.user.id
-    if isinstance(request.data, QueryDict):
+    data = request.data
+    if isinstance(data, QueryDict):
         data = QueryDict.dict(data)
     try:
-        dog = Dog.objects.get(id = request.data["dog_id"])
+        dog = Dog.objects.get(id = data["dog_id"])
         if dog.user_id.id == user: # 강아지 주인의 id와 user id가 같을시 return
             return Response({"error" : "본인의 강아지에 대한 산책 기록은 저장할 수 없습니다."}, status=400)
     except:
@@ -140,11 +141,11 @@ def new_walk(request):
     #     week_distance = walks.aggregate(Sum('distance'))['distance__sum']
     #     week_unique_dog_count = walks.values('dog_id').distinct().count()
 
-    serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
+    serializer = WalkRegisterSerializer(data=data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
-        distance = decimal.Decimal(request.data["distance"])
-        time = decimal.Decimal(request.data["time"])
+        distance = decimal.Decimal(data["distance"])
+        time = decimal.Decimal(data["time"])
 
         # 관련 업적 갱신
         achievements = UserAchievement.objects.filter(user_id = request.user.id, is_achieved = False)
