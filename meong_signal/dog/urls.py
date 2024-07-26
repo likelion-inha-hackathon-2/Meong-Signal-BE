@@ -11,6 +11,5 @@ urlpatterns = [
     path('search-by-tag/<int:tag_number>', views.search_by_tag),
     path('<int:dog_id>', views.dog_info),
     path("all-status", views.all_status_dog_list),
-    path('all-status-dummy', views.dummy_all_status),
-    path('owner-email', views.get_owner_email)
+    path('owner', views.get_owner_info)
 ]

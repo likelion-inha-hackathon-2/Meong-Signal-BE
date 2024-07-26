@@ -270,11 +270,11 @@ def all_status_dog_list(request):
 ##########################################
 
 ##########################################
-# api 9 : 특정 강아지 주인의 이메일 조회 api
+# api 9 : 특정 강아지 주인의 정보 조회
 @swagger_auto_schema(
     method="POST", 
     tags=["강아지 api"],
-    operation_summary="견주 이메일 조회 api",
+    operation_summary="견주 정보 조회 api",
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
@@ -284,65 +284,14 @@ def all_status_dog_list(request):
 )
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def get_owner_email(request):
+def get_owner_info(request):
     dog_id = request.data["dog_id"]
     try:
         dog = Dog.objects.get(id = dog_id)
         owner = User.objects.get(id = dog.user_id.id)
-        return Response({"owner_email" : owner.email}, status=status.HTTP_200_OK)
+        return Response({"owner_id" : owner.id, "owner_email" : owner.email, "owner_image" : owner.profile_image.url, "owner_nickname" : owner.nickname}, status=status.HTTP_200_OK)
 
     except:
         return Response({"error":"dog_id에 대한 강아지가 존재하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 ##########################################
-
-
-dummy_data = {
-  "dogs": [
-    {
-      "id": 1,
-      "name": "관리자2의강아지",
-      "road_address": "미추홀구 인하로 100",
-      "distance": 0.5,
-      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/cdf354c07a6647fa85c262bd5ddd6bba.JPG",
-      "status": "B"
-    },
-    {
-      "id": 2,
-      "name": "절미",
-      "road_address": "미추홀구 인하로 100",
-      "distance": 0.5,
-      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/711f0d3fee264d658b48518779f29e2c.png",
-      "status": "R"
-    },
-    {
-      "id": 6,
-      "name": "밥풀이",
-      "road_address": "인천 미추홀구 경인남길 118",
-      "distance": 0.3,
-      "image": "https://meong-signal-s3-bucket.s3.ap-northeast-2.amazonaws.com/dogs/182b947ca82a48039b0bad4354c260e9.jpg",
-      "status": "R"
-    }
-  ],
-  "count": 3
-}
-
-# dummy api : 모든 상태의 강아지 조회 api
-
-@swagger_auto_schema(
-    method="POST", 
-    tags=["강아지 api"],
-    operation_summary="모든 상태 강아지 조회 dummy api",
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 위도'),
-            'longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='현재 경도'),
-        }
-    ),
-)
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-def dummy_all_status(request):
-    return Response(dummy_data, status=200)
-
