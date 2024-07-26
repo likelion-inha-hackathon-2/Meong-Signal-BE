@@ -151,8 +151,8 @@ def charger_meong(request):
 
 @swagger_auto_schema(
     method="GET", 
-    tags=["강아지 api"],
-    operation_summary="특정 강아지 조회 api"
+    tags=["멍샵 api"],
+    operation_summary="현재 멍 조회 api"
 )
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -166,3 +166,30 @@ def return_meong(request):
 ##########################################
 # 구매한 상품 get
 
+@swagger_auto_schema(
+    method="GET", 
+    tags=["멍샵 api"],
+    operation_summary="구매한 상품 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def my_products(request):
+    user = request.user
+    return_data = {"my_products" : []}
+
+    my_products = UserProducts.objects.filter(user_id = user.id)
+    for my_product in my_products:
+        product_info = {}
+        try:
+            product = PRODUCTS.objects.get(id = my_product.product_id.id)
+            product_info["name"] = product.name
+            product_info["image"] = product.image.url
+            product_info["content"] = product.content
+            product_info["price"] = product.price
+
+            return_data["my_products"].append(product_info)
+        except ObjectDoesNotExist:
+            return Response({"error" : "상품 정보가 존재하지 않습니다."}, status=400)
+
+
+    return Response(return_data, status=status.HTTP_200_OK)
