@@ -133,13 +133,13 @@ def new_walk(request):
         return Response({"error" : "강아지를 찾을 수 없습니다."}, status=400)
     
     # 산책 기록 저장하기 전에, 이번주 산책 기록 불러오기 (챌린지 달성 여부 판별용)
-    # start_of_week = get_start_of_week()
-    # week_distance, week_unique_dog_count = 0, 0
-    # walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
+    start_of_week = get_start_of_week()
+    week_distance_before, week_unique_dog_count_before = 0, 0
+    walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
 
-    # if walks.exists():
-    #     week_distance = walks.aggregate(Sum('distance'))['distance__sum']
-    #     week_unique_dog_count = walks.values('dog_id').distinct().count()
+    if walks.exists():
+        week_distance_before = walks.aggregate(Sum('distance'))['distance__sum']
+        week_unique_dog_count_before = walks.values('dog_id').distinct().count()
 
     serializer = WalkRegisterSerializer(data=data, context={'request': request})
     if serializer.is_valid():
@@ -184,17 +184,20 @@ def new_walk(request):
             return Response({"error": f"유저 정보(총 거리, 칼로리) update error: {e}"}, status=500)
         
         # 챌린지 달성 시 meong 갱신
+        week_distance_after, week_unique_dog_count_after = 0, 0
+        walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
 
-        # week_distance, week_unique_dog_count
-        # if week_distance < 30 and float(week_distance) + float(distance) >= 30: # 이번 산책으로 첫 번째 챌린지 달성
-
-        # if week_distance < 30 and float(week_distance) + float(distance) >= 30: # 이번 산책으로 두 번째 챌린지 달성
-        #     user.meong += 20
-        #     user.save()
+        if walks.exists():
+            week_distance_after = walks.aggregate(Sum('distance'))['distance__sum']
+            week_unique_dog_count_after = walks.values('dog_id').distinct().count()
         
-
+        if week_distance_before < 30 and week_distance_after >= 30:
+            user.meong += 20
+            user.save()
         
-        
+        if week_unique_dog_count_before < 3 and week_unique_dog_count_after >= 3:
+            user.meong += 15
+            user.save()
 
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(status=400)
