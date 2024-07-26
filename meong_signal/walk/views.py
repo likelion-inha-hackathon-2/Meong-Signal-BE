@@ -26,6 +26,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
 import decimal
+from django.http import QueryDict
 
 #csv 데이터 로드
 def load_trail_data():
@@ -120,14 +121,24 @@ def get_nearby_trails(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_walk(request):
-    # 강아지 주인의 id와 user id가 같을시 return
     user = request.user.id
+    if isinstance(request.data, QueryDict):
+        data = QueryDict.dict(data)
     try:
         dog = Dog.objects.get(id = request.data["dog_id"])
-        if dog.user_id.id == user:
+        if dog.user_id.id == user: # 강아지 주인의 id와 user id가 같을시 return
             return Response({"error" : "본인의 강아지에 대한 산책 기록은 저장할 수 없습니다."}, status=400)
     except:
         return Response({"error" : "강아지를 찾을 수 없습니다."}, status=400)
+    
+    # 산책 기록 저장하기 전에, 이번주 산책 기록 불러오기 (챌린지 달성 여부 판별용)
+    # start_of_week = get_start_of_week()
+    # week_distance, week_unique_dog_count = 0, 0
+    # walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
+
+    # if walks.exists():
+    #     week_distance = walks.aggregate(Sum('distance'))['distance__sum']
+    #     week_unique_dog_count = walks.values('dog_id').distinct().count()
 
     serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
@@ -170,6 +181,20 @@ def new_walk(request):
                 return Response({"error" : "user를 찾을 수 없습니다."}, status=400)
         except Exception as e:
             return Response({"error": f"유저 정보(총 거리, 칼로리) update error: {e}"}, status=500)
+        
+        # 챌린지 달성 시 meong 갱신
+
+        # week_distance, week_unique_dog_count
+        # if week_distance < 30 and float(week_distance) + float(distance) >= 30: # 이번 산책으로 첫 번째 챌린지 달성
+
+        # if week_distance < 30 and float(week_distance) + float(distance) >= 30: # 이번 산책으로 두 번째 챌린지 달성
+        #     user.meong += 20
+        #     user.save()
+        
+
+        
+        
+
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(status=400)
 
