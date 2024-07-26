@@ -357,7 +357,6 @@ def walk_and_review_info(request):
     return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "image" : "walks/default_walk"}
     user = request.user
     walk_id = request.data['walk_id']
-    print("walk_id:", walk_id)
     try:
         walk = Walk.objects.get(id = walk_id)
         return_data["image"] = walk.image.url

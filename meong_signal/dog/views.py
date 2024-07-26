@@ -289,7 +289,7 @@ def get_owner_email(request):
     try:
         dog = Dog.objects.get(id = dog_id)
         owner = User.objects.get(id = dog.user_id.id)
-        return Response({"email" : owner.email}, status=status.HTTP_200_OK)
+        return Response({"owner_email" : owner.email}, status=status.HTTP_200_OK)
 
     except:
         return Response({"error":"dog_id에 대한 강아지가 존재하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)

@@ -335,4 +335,4 @@ def get_user_email(request):
     if user is None:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    return Response({"email":user.email}, status=status.HTTP_200_OK)
+    return Response({"my_email":user.email}, status=status.HTTP_200_OK)
