@@ -20,6 +20,9 @@ class UserProducts(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     product_id = models.ForeignKey(PRODUCTS, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('user_id', 'product_id')
+
     def __str__(self):
         r = f'유저 id {self.dog}가 구매한 상품 id {self.number}'
         return r
