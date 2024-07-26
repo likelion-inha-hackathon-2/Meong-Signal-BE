@@ -1,4 +1,5 @@
 from django.db import models
+from account.models import User
 
 class PRODUCTS(models.Model):
     name = models.CharField(max_length=15, blank=True)
@@ -14,3 +15,11 @@ class PRODUCTS(models.Model):
     
     def __str__(self):
         return self.name
+    
+class UserProducts(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(PRODUCTS, on_delete=models.CASCADE)
+
+    def __str__(self):
+        r = f'유저 id {self.dog}가 구매한 상품 id {self.number}'
+        return r
