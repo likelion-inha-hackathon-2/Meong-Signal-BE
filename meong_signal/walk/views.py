@@ -123,6 +123,8 @@ def get_nearby_trails(request):
 def new_walk(request):
     user = request.user.id
     data = request.data
+    walk_id = 0
+
     if isinstance(data, QueryDict):
         data = QueryDict.dict(data)
     try:
@@ -143,7 +145,8 @@ def new_walk(request):
 
     serializer = WalkRegisterSerializer(data=data, context={'request': request})
     if serializer.is_valid():
-        serializer.save()
+        saved_data = serializer.save()
+        walk_id = saved_data.id
         distance = decimal.Decimal(data["distance"])
         time = decimal.Decimal(data["time"])
 
@@ -199,7 +202,7 @@ def new_walk(request):
             user.meong += 15
             user.save()
 
-        return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
+        return Response({"id" : walk_id, "message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(status=400)
 
 ######################################
