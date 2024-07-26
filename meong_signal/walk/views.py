@@ -363,7 +363,7 @@ def walk_user_image(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def walk_and_review_info(request):
-    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "image" : "walks/default_walk"}
+    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "image" : "walks/default_walk", "dog_image":"", "reviewer_nickname":""}
     user = request.user
     walk_id = request.data['walk_id']
     try:
@@ -372,6 +372,7 @@ def walk_and_review_info(request):
     
         dog = Dog.objects.get(id=walk.dog_id.id)
         return_data["dog_name"] = dog.name
+        return_data["dog_image"] = dog.image.url
 
         owner = User.objects.get(id = user.id)
         return_data["my_profile_image"] = owner.profile_image.url
@@ -380,6 +381,7 @@ def walk_and_review_info(request):
         if walker_exist.exists():
             walker = walker_exist[0]
             return_data["reviewer_profile_image"] = walker.profile_image.url
+            return_data["reviewer_nickname"] = walker.nickname
 
             # 평균 별점 구하기
             average_rating = UserReview.objects.filter(user_id=walker.id).aggregate(Avg('rating'))
