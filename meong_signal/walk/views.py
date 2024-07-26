@@ -123,7 +123,7 @@ def new_walk(request):
     # 강아지 주인의 id와 user id가 같을시 return
     user = request.user.id
     try:
-        dog = Dog.objects.get(id = request.data["walk"]["dog_id"])
+        dog = Dog.objects.get(id = request.data["dog_id"])
         if dog.user_id.id == user:
             return Response({"error" : "본인의 강아지에 대한 산책 기록은 저장할 수 없습니다."}, status=400)
     except:
@@ -132,7 +132,8 @@ def new_walk(request):
     serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
-        distance = decimal.Decimal(request.data["walk"]["distance"])
+        distance = decimal.Decimal(request.data["distance"])
+        time = decimal.Decimal(request.data["time"])
 
         # 관련 업적 갱신
         achievements = UserAchievement.objects.filter(user_id = request.user.id, is_achieved = False)
@@ -148,23 +149,29 @@ def new_walk(request):
                 else: # achievement.category == 'walking'
                     if achievement.count + distance >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
                         achievement.is_achieved = True
-                    achievement.count += distance
+                        achievement.count = original_achievement.total_count
+                    else:
+                        achievement.count += distance
                     achievement.save()
 
             except ObjectDoesNotExist:
                 pass
+            except Exception as e:
+                return Response({"error": f"업적 update error: {e}"}, status=500)
 
         # User DB의 distance, count 갱신
         try:
             user = User.objects.get(id = request.user.id)
             user.total_distance += distance
-            user.total_kilocalories = get_calories(distance, request.data["walk"]["time"])
+            user.total_kilocalories += decimal.Decimal(get_calories(float(distance), float(time)))
             user.save()
         
         except ObjectDoesNotExist:
                 return Response({"error" : "user를 찾을 수 없습니다."}, status=400)
+        except Exception as e:
+            return Response({"error": f"유저 정보(총 거리, 칼로리) update error: {e}"}, status=500)
         return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=400)
+    return Response(status=400)
 
 ######################################
 
