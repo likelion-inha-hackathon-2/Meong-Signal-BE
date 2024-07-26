@@ -308,27 +308,36 @@ def delete_trail(request, trail_id):
 # 산책과 관련된 유저 이미지 조회 api
 
 @swagger_auto_schema(
-    method="GET",
+    method="POST",
     tags=["walk api"],
     operation_summary="산책 관련 유저 이미지 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'walk_id': openapi.Schema(type=openapi.TYPE_NUMBER, description='산책 id'),
+        }
+    ),
 )
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def walk_user_image(request, walk_id):
+def walk_user_image(request):
+    walk_id = request.data["walk_id"]
     walk = Walk.objects.get(id = walk_id)
     dog_id = walk.dog_id.id # 강아지
-    owner_id = walk.owner_id.id # 견주
-
-    dog = Dog.objects.get(id = dog_id)
-    if dog is None:
-        return Response({"error":"강아지 정보를 찾을 수 없습니다."}, status=400)
-
-    owner = User.objects.get(id = owner_id)
-    if owner is None:
-        return Response({"error":"견주 정보를 찾을 수 없습니다."}, status=400)
+    user_id = walk.user_id.id # 산책한 사람
 
     try:
-        return_data = {"dog_image" : dog.image.url, "dog_name" : dog.name, "owner_image" : owner.profile_image.url, "owner_name" : owner.nickname}
+        dog = Dog.objects.get(id = dog_id)
+    except ObjectDoesNotExist:
+        return Response({"error":"강아지 정보를 찾을 수 없습니다."}, status=400)
+
+    try:
+        user = User.objects.get(id = user_id)
+    except ObjectDoesNotExist:
+        return Response({"error":"산책자 정보를 찾을 수 없습니다."}, status=400)
+
+    try:
+        return_data = {"dog_image" : dog.image.url, "dog_name" : dog.name, "user_image" : user.profile_image.url, "user_name" : user.nickname}
 
         return Response(return_data, status=200)
     except:
@@ -398,7 +407,7 @@ def walk_and_review_info(request):
         return Response({"error" : "산책 id에 대한 데이터가 존재하지 않습니다."}, status=400)
     
 ######################################
-# 산책과 관련된 유저 이미지 조회 api
+# 이번주 산책 기록 조회 api
 
 @swagger_auto_schema(
     method="GET",
