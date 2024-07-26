@@ -47,7 +47,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('nickname', 'road_address', 'detail_address', 'profile_image', "total_distance", "total_kilocalories")
+        fields = ('id', 'email', 'nickname', 'road_address', 'detail_address', 'profile_image', "total_distance", "total_kilocalories")
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
