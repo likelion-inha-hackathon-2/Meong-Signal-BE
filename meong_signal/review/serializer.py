@@ -10,9 +10,11 @@ class UserReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserReviewInputSerializer(serializers.ModelSerializer):
+    meong = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = UserReview
-        fields = ('rating', 'content', 'walk_id',)
+        fields = ('rating', 'content', 'walk_id', 'meong')
 
 class WalkReviewSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +29,7 @@ class ReviewTagSerializer(serializers.ModelSerializer):
 class WalkReviewRegisterSerializer(serializers.Serializer):
     review = WalkReviewSerializer()
     tags = ReviewTagSerializer(many=True)
+    meong = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
         user = self.context['request'].user

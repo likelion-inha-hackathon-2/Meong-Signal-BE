@@ -45,13 +45,21 @@ def new_review_rating(request):
     except:
         pass
 
+    if data['meong'] > request.user.meong: # 보유 멍보다 선물할 멍 값이 큰 경우
+        return Response({"error" : "보유한 멍보다 선물할 멍의 값이 큽니다."}, status=400)
+
     user = walk.user_id
     data['user_id'] = user.id
-
     serializer = UserReviewSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
+        # 멍 차감
+        request.user.meong -= data["meong"]
+        request.user.save()
+        # 멍 지급
+        user.meong += data["meong"]
+        user.save()
         return Response({"message" : "리뷰가 등록되었습니다.", "data" : serializer.data},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
@@ -84,9 +92,20 @@ def new_review_tags(request):
     except:
         pass
 
+    if data['meong'] > request.user.meong: # 보유 멍보다 선물할 멍 값이 큰 경우
+        return Response({"error" : "보유한 멍보다 선물할 멍의 값이 큽니다."}, status=400)
+    
+    owner = walk.owner_id
+    print("owner:", owner)
     serializer = WalkReviewRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
+        # 멍 차감
+        request.user.meong -= data["meong"]
+        request.user.save()
+        # 멍 지급
+        owner.meong += data["meong"]
+        owner.save()
         return Response({"message" : "리뷰가 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
