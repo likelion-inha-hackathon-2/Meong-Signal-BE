@@ -30,9 +30,24 @@ from walk.models import Walk
 def new_review_rating(request):
     data=request.data
     data['owner_id'] = request.user.id
-    walk = Walk.objects.get(id=data['walk_id'])
+
+    try:
+        walk = Walk.objects.get(id=data['walk_id'])
+    except ObjectDoesNotExist:
+        return Response({"error" : "walk id에 대한 산책 기록을 찾을 수 없습니다."}, status=400)
+
+    if request.user != walk.owner_id: # 리뷰를 작성하려는 사람이 해당 산책의 견주가 아닌 경우 error
+        return Response({"error" : "내 강아지의 산책 기록이 아닙니다."}, status=400)
+    
+    try: # 이미 리뷰를 작성한 경우 error
+        UserReview.objects.get(walk_id = data["walk_id"], owner_id = request.user.id)
+        return Response({"error" : "이미 해당 산책에 대한 리뷰를 작성했습니다."}, status=409)
+    except:
+        pass
+
     user = walk.user_id
     data['user_id'] = user.id
+
     serializer = UserReviewSerializer(data=data)
 
     if serializer.is_valid():
@@ -54,6 +69,21 @@ def new_review_rating(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_tags(request):
+    data = request.data
+    try:
+        walk = Walk.objects.get(id=data['review']['walk_id'])
+    except ObjectDoesNotExist:
+        return Response({"error" : "walk id에 대한 산책 기록을 찾을 수 없습니다."}, status=400)
+    
+    if request.user != walk.user_id: # 리뷰를 작성하려는 사람이 해당 산책의 산책자가 아닌 경우 error
+        return Response({"error" : "내 산책 기록이 아닙니다."}, status=400)
+        
+    try: # 이미 리뷰를 작성한 경우 error
+        WalkingReview.objects.get(walk_id = data['review']["walk_id"], user_id = request.user.id)
+        return Response({"error" : "이미 해당 산책에 대한 리뷰를 작성했습니다."}, status=409)
+    except:
+        pass
+
     serializer = WalkReviewRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
