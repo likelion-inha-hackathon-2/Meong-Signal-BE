@@ -78,7 +78,7 @@ class DogWalkRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Walk
-        fields = ['distance', 'nickname', 'date']
+        fields = ['id', 'distance', 'nickname', 'date']
     
     def get_nickname(self, obj):
         return obj.user_id.nickname if obj.user_id else None
