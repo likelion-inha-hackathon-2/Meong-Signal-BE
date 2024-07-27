@@ -59,7 +59,6 @@ def get_achievement(request):
         achievement_data = {}
         try:
             original_achievement = Achievement.objects.get(id = achievement.achievement_id.id)
-            print("original_achievement:", original_achievement)
         except ObjectDoesNotExist:
             return Response({"error" : "User에 관한 Achievement를 찾을 수 없습니다."}, status=400)
 
@@ -113,7 +112,7 @@ def set_representative(request):
 
     # 기존 대표로 등록되어있던 업적이 있으면 대표에서 해제
     try:
-        rep_achievement = UserAchievement.objects.get(id = user_achievement_id, is_representative = True)
+        rep_achievement = UserAchievement.objects.get(user_id = request.user.id, is_representative = True)
         rep_achievement.is_representative = False
         rep_achievement.save()
     except ObjectDoesNotExist:
@@ -128,8 +127,6 @@ def set_representative(request):
         return Response({"message": "대표로 등록되었습니다."}, status=200)
 
     return Response({"message": "아직 완료되지 않은 업적입니다."}, status=400)
-
-
 
 @swagger_auto_schema(
     method="GET",
