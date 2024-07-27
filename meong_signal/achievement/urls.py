@@ -5,6 +5,6 @@ urlpatterns = [
     path('new', views.new_achievement),
     path('all', views.get_achievement),
     path('user', views.new_achievement_about_user),
-    path('achievements/set-represent', views.set_representative),
-    path('achievements/represent', views.get_represent),
+    path('set-represent', views.set_representative),
+    path('represent', views.get_represent),
 ]
