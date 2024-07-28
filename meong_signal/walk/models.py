@@ -8,9 +8,14 @@ class Walk(models.Model):
     dog_id = models.ForeignKey(Dog, on_delete=models.CASCADE)
     distance = models.DecimalField(max_digits=10, decimal_places=1)
     kilocalories = models.DecimalField(max_digits=10, decimal_places=1)
-    meong = models.IntegerField()
     time = models.IntegerField()
     date = models.DateField()
+    image = models.ImageField(upload_to='walks', default='walks/default_walk.png')
+    
+    def save(self, *args, **kwargs):
+        if not self.image:
+            self.image = 'walks/default_walk.png'
+        super().save(*args, **kwargs)
 
 class Trail(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -30,13 +30,36 @@ from walk.models import Walk
 def new_review_rating(request):
     data=request.data
     data['owner_id'] = request.user.id
-    walk = Walk.objects.get(id=data['walk_id'])
+
+    try:
+        walk = Walk.objects.get(id=data['walk_id'])
+    except ObjectDoesNotExist:
+        return Response({"error" : "walk id에 대한 산책 기록을 찾을 수 없습니다."}, status=400)
+
+    if request.user != walk.owner_id: # 리뷰를 작성하려는 사람이 해당 산책의 견주가 아닌 경우 error
+        return Response({"error" : "내 강아지의 산책 기록이 아닙니다."}, status=400)
+    
+    try: # 이미 리뷰를 작성한 경우 error
+        UserReview.objects.get(walk_id = data["walk_id"], owner_id = request.user.id)
+        return Response({"error" : "이미 해당 산책에 대한 리뷰를 작성했습니다."}, status=409)
+    except:
+        pass
+
+    if data['meong'] > request.user.meong: # 보유 멍보다 선물할 멍 값이 큰 경우
+        return Response({"error" : "보유한 멍보다 선물할 멍의 값이 큽니다."}, status=400)
+
     user = walk.user_id
     data['user_id'] = user.id
     serializer = UserReviewSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
+        # 멍 차감
+        request.user.meong -= data["meong"]
+        request.user.save()
+        # 멍 지급
+        user.meong += data["meong"]
+        user.save()
         return Response({"message" : "리뷰가 등록되었습니다.", "data" : serializer.data},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 
@@ -54,9 +77,35 @@ def new_review_rating(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_review_tags(request):
+    data = request.data
+    try:
+        walk = Walk.objects.get(id=data['review']['walk_id'])
+    except ObjectDoesNotExist:
+        return Response({"error" : "walk id에 대한 산책 기록을 찾을 수 없습니다."}, status=400)
+    
+    if request.user != walk.user_id: # 리뷰를 작성하려는 사람이 해당 산책의 산책자가 아닌 경우 error
+        return Response({"error" : "내 산책 기록이 아닙니다."}, status=400)
+        
+    try: # 이미 리뷰를 작성한 경우 error
+        WalkingReview.objects.get(walk_id = data['review']["walk_id"], user_id = request.user.id)
+        return Response({"error" : "이미 해당 산책에 대한 리뷰를 작성했습니다."}, status=409)
+    except:
+        pass
+
+    if data['meong'] > request.user.meong: # 보유 멍보다 선물할 멍 값이 큰 경우
+        return Response({"error" : "보유한 멍보다 선물할 멍의 값이 큽니다."}, status=400)
+    
+    owner = walk.owner_id
+    print("owner:", owner)
     serializer = WalkReviewRegisterSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
+        # 멍 차감
+        request.user.meong -= data["meong"]
+        request.user.save()
+        # 멍 지급
+        owner.meong += data["meong"]
+        owner.save()
         return Response({"message" : "리뷰가 등록되었습니다."},status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=400)
 

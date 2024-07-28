@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.exceptions import ObjectDoesNotExist
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -63,7 +64,7 @@ def category_product(request, category):
 ##########################################
 
 ##########################################
-# 상품 구매 (멍 차감) api
+# 상품 구매 (멍 차감 & 보유 상품 목록에 추가) api
 
 @swagger_auto_schema(
     method="POST", 
@@ -72,8 +73,7 @@ def category_product(request, category):
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'product_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='상품 ID'),
-            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='사용자 ID'),
+            'product_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='상품 ID')
         }
     )
 )
@@ -82,19 +82,28 @@ def category_product(request, category):
 def purchase_product(request):
     try:
         product_id = request.data.get('product_id')
-        user_id = request.data.get('user_id')
+        user = request.user
         
-        if not product_id or not user_id:
-            return Response({"error": "Product ID and User ID are required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not product_id:
+            return Response({"error": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        print("product_id:", product_id, "user_id:", user.id)
+        
+        try: # 이미 구매한 상품인 경우 error
+            _ = UserProducts.objects.get(product_id = product_id, user_id = user.id)
+            return Response({"error": "이미 구매하신 상품입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            pass
         
         product = PRODUCTS.objects.get(id=product_id)
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(id=user.id)
         
         if user.meong < product.price:
             return Response({"error": "Not enough meong to purchase the product."}, status=status.HTTP_400_BAD_REQUEST)
         
         user.meong -= product.price
         user.save()
+
+        UserProducts.objects.create(product_id = product, user_id = user) # 유저가 구매한 상품 목록에 추가
         
         return Response({"message": "Product purchased successfully.", "current_meong":user.meong}, status=status.HTTP_200_OK)
     
@@ -142,8 +151,8 @@ def charger_meong(request):
 
 @swagger_auto_schema(
     method="GET", 
-    tags=["강아지 api"],
-    operation_summary="특정 강아지 조회 api"
+    tags=["멍샵 api"],
+    operation_summary="현재 멍 조회 api"
 )
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -151,3 +160,36 @@ def return_meong(request):
     user = request.user
 
     return Response({"current_meong": user.meong}, status=status.HTTP_200_OK)
+
+##########################################
+
+##########################################
+# 구매한 상품 get
+
+@swagger_auto_schema(
+    method="GET", 
+    tags=["멍샵 api"],
+    operation_summary="구매한 상품 조회 api"
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def my_products(request):
+    user = request.user
+    return_data = {"my_products" : []}
+
+    my_products = UserProducts.objects.filter(user_id = user.id)
+    for my_product in my_products:
+        product_info = {}
+        try:
+            product = PRODUCTS.objects.get(id = my_product.product_id.id)
+            product_info["name"] = product.name
+            product_info["image"] = product.image.url
+            product_info["content"] = product.content
+            product_info["price"] = product.price
+
+            return_data["my_products"].append(product_info)
+        except ObjectDoesNotExist:
+            return Response({"error" : "상품 정보가 존재하지 않습니다."}, status=400)
+
+
+    return Response(return_data, status=status.HTTP_200_OK)

@@ -26,6 +26,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
 import decimal
+from django.http import QueryDict
 
 #csv 데이터 로드
 def load_trail_data():
@@ -120,19 +121,34 @@ def get_nearby_trails(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def new_walk(request):
-    # 강아지 주인의 id와 user id가 같을시 return
     user = request.user.id
+    data = request.data
+    walk_id = 0
+
+    if isinstance(data, QueryDict):
+        data = QueryDict.dict(data)
     try:
-        dog = Dog.objects.get(id = request.data["walk"]["dog_id"])
-        if dog.user_id.id == user:
+        dog = Dog.objects.get(id = data["dog_id"])
+        if dog.user_id.id == user: # 강아지 주인의 id와 user id가 같을시 return
             return Response({"error" : "본인의 강아지에 대한 산책 기록은 저장할 수 없습니다."}, status=400)
     except:
         return Response({"error" : "강아지를 찾을 수 없습니다."}, status=400)
+    
+    # 산책 기록 저장하기 전에, 이번주 산책 기록 불러오기 (챌린지 달성 여부 판별용)
+    start_of_week = get_start_of_week()
+    week_distance_before, week_unique_dog_count_before = 0, 0
+    walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
 
-    serializer = WalkRegisterSerializer(data=request.data, context={'request': request})
+    if walks.exists():
+        week_distance_before = walks.aggregate(Sum('distance'))['distance__sum']
+        week_unique_dog_count_before = walks.values('dog_id').distinct().count()
+
+    serializer = WalkRegisterSerializer(data=data, context={'request': request})
     if serializer.is_valid():
-        serializer.save()
-        distance = decimal.Decimal(request.data["walk"]["distance"])
+        saved_data = serializer.save()
+        walk_id = saved_data.id
+        distance = decimal.Decimal(data["distance"])
+        time = decimal.Decimal(data["time"])
 
         # 관련 업적 갱신
         achievements = UserAchievement.objects.filter(user_id = request.user.id, is_achieved = False)
@@ -148,23 +164,46 @@ def new_walk(request):
                 else: # achievement.category == 'walking'
                     if achievement.count + distance >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
                         achievement.is_achieved = True
-                    achievement.count += distance
+                        achievement.count = original_achievement.total_count
+                    else:
+                        achievement.count += distance
                     achievement.save()
 
             except ObjectDoesNotExist:
                 pass
+            except Exception as e:
+                return Response({"error": f"업적 update error: {e}"}, status=500)
 
         # User DB의 distance, count 갱신
         try:
             user = User.objects.get(id = request.user.id)
             user.total_distance += distance
-            user.total_kilocalories = get_calories(distance, request.data["walk"]["time"])
+            user.total_kilocalories += decimal.Decimal(get_calories(float(distance), float(time)))
             user.save()
         
         except ObjectDoesNotExist:
                 return Response({"error" : "user를 찾을 수 없습니다."}, status=400)
-        return Response({"message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=400)
+        except Exception as e:
+            return Response({"error": f"유저 정보(총 거리, 칼로리) update error: {e}"}, status=500)
+        
+        # 챌린지 달성 시 meong 갱신
+        week_distance_after, week_unique_dog_count_after = 0, 0
+        walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
+
+        if walks.exists():
+            week_distance_after = walks.aggregate(Sum('distance'))['distance__sum']
+            week_unique_dog_count_after = walks.values('dog_id').distinct().count()
+        
+        if week_distance_before < 30 and week_distance_after >= 30:
+            user.meong += 20
+            user.save()
+        
+        if week_unique_dog_count_before < 3 and week_unique_dog_count_after >= 3:
+            user.meong += 15
+            user.save()
+
+        return Response({"id" : walk_id, "message" : "산책 기록이 등록되었습니다."},status=status.HTTP_201_CREATED)
+    return Response(status=400)
 
 ######################################
 
@@ -272,27 +311,36 @@ def delete_trail(request, trail_id):
 # 산책과 관련된 유저 이미지 조회 api
 
 @swagger_auto_schema(
-    method="GET",
+    method="POST",
     tags=["walk api"],
     operation_summary="산책 관련 유저 이미지 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'walk_id': openapi.Schema(type=openapi.TYPE_NUMBER, description='산책 id'),
+        }
+    ),
 )
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
-def walk_user_image(request, walk_id):
+def walk_user_image(request):
+    walk_id = request.data["walk_id"]
     walk = Walk.objects.get(id = walk_id)
     dog_id = walk.dog_id.id # 강아지
-    owner_id = walk.owner_id.id # 견주
-
-    dog = Dog.objects.get(id = dog_id)
-    if dog is None:
-        return Response({"error":"강아지 정보를 찾을 수 없습니다."}, status=400)
-
-    owner = User.objects.get(id = owner_id)
-    if owner is None:
-        return Response({"error":"견주 정보를 찾을 수 없습니다."}, status=400)
+    user_id = walk.user_id.id # 산책한 사람
 
     try:
-        return_data = {"dog_image" : dog.image.url, "dog_name" : dog.name, "owner_image" : owner.profile_image.url, "owner_name" : owner.nickname}
+        dog = Dog.objects.get(id = dog_id)
+    except ObjectDoesNotExist:
+        return Response({"error":"강아지 정보를 찾을 수 없습니다."}, status=400)
+
+    try:
+        user = User.objects.get(id = user_id)
+    except ObjectDoesNotExist:
+        return Response({"error":"산책자 정보를 찾을 수 없습니다."}, status=400)
+
+    try:
+        return_data = {"dog_image" : dog.image.url, "dog_name" : dog.name, "user_image" : user.profile_image.url, "user_name" : user.nickname}
 
         return Response(return_data, status=200)
     except:
@@ -318,14 +366,16 @@ def walk_user_image(request, walk_id):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def walk_and_review_info(request):
-    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : ""}
+    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "image" : "walks/default_walk", "dog_image":"", "reviewer_nickname":""}
     user = request.user
     walk_id = request.data['walk_id']
     try:
         walk = Walk.objects.get(id = walk_id)
+        return_data["image"] = walk.image.url
     
         dog = Dog.objects.get(id=walk.dog_id.id)
         return_data["dog_name"] = dog.name
+        return_data["dog_image"] = dog.image.url
 
         owner = User.objects.get(id = user.id)
         return_data["my_profile_image"] = owner.profile_image.url
@@ -334,6 +384,7 @@ def walk_and_review_info(request):
         if walker_exist.exists():
             walker = walker_exist[0]
             return_data["reviewer_profile_image"] = walker.profile_image.url
+            return_data["reviewer_nickname"] = walker.nickname
 
             # 평균 별점 구하기
             average_rating = UserReview.objects.filter(user_id=walker.id).aggregate(Avg('rating'))
@@ -359,3 +410,24 @@ def walk_and_review_info(request):
     
     except ObjectDoesNotExist:
         return Response({"error" : "산책 id에 대한 데이터가 존재하지 않습니다."}, status=400)
+    
+######################################
+# 이번주 산책 기록 조회 api
+
+@swagger_auto_schema(
+    method="GET",
+    tags=["walk api"],
+    operation_summary="이번주 산책 기록 조회(챌린지 관련) api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def this_week_challenge(request):
+    start_of_week = get_start_of_week()
+    week_distance, unique_dog_count = 0, 0
+    walks = Walk.objects.filter(user_id = request.user.id, date__gte=start_of_week)
+
+    if walks.exists():
+        week_distance = walks.aggregate(Sum('distance'))['distance__sum']
+        unique_dog_count = walks.values('dog_id').distinct().count()
+
+    return Response({"week_distance":week_distance, "week_dogs":unique_dog_count}, status=200)

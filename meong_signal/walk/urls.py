@@ -9,6 +9,7 @@ urlpatterns = [
     path('toggle', views.toggle_trail),
     path('<int:trail_id>', views.delete_trail),
     path('mark', views.saved_trails),
-    path('user-image/<int:walk_id>', views.walk_user_image),
-    path('walks/walk-review-info', views.walk_and_review_info),
+    path('user-image', views.walk_user_image),
+    path('walk-review-info', views.walk_and_review_info),
+    path('challenge', views.this_week_challenge),
 ]
