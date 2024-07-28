@@ -108,7 +108,7 @@ def chat_rooms(request):
                     "room_name": "owner_user - user_user",
                     "other_user_nickname": "example_user",
                     "other_user_profile_image": "http://example.com/media/users/default_user.jpg",
-                    "websocket_url": "ws://example.com/ws/chat/1/?token=exampletoken"
+                    "websocket_url": "wss://example.com/ws/chat/1/?token=exampletoken"
                 }
             }
         ),
@@ -132,7 +132,7 @@ def enter_chat_room(request, room_id):
         'room_name': chat_room.name,
         'other_user_nickname': other_user.nickname,
         'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url),
-        'websocket_url': f"ws://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
+        'websocket_url': f"wss://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
