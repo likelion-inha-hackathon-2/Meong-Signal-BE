@@ -20,6 +20,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 #from chat.routing import websocket_urlpatterns
 import walk_status.routing  # 이제 이 코드는 안전하게 실행될 수 있습니다.
+import chat.routing
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
@@ -27,7 +28,7 @@ application = ProtocolTypeRouter({
         AuthMiddlewareStack(
             AllowedHostsOriginValidator(
             URLRouter(
-                walk_status.routing.websocket_urlpatterns
+                walk_status.routing.websocket_urlpatterns + chat.routing.websocket_urlpatterns
             )
         ),
     ),

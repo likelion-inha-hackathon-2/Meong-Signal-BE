@@ -12,7 +12,7 @@
         const roomId = "{{ room_id }}";
         const accessToken = encodeURIComponent("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxNzI1MTEzLCJpYXQiOjE3MjE3MjE1MTMsImp0aSI6IjU0YTFhNzY5MjgwODQzY2E5YTBkMDI0NjViNjk1N2I2IiwidXNlcl9pZCI6Mn0.UXQSHMYflKANjw8lVPtDEE4e7k7nKlh-zXRErEx3Qvs");
         const chatSocket = new WebSocket(
-            'ws://' + window.location.host + '/ws/chat/' + roomId + '/?token=' + accessToken
+            'wss://' + window.location.host + '/ws/chat/' + roomId + '/?token=' + accessToken
         );
 
         chatSocket.onmessage = function(e) {
