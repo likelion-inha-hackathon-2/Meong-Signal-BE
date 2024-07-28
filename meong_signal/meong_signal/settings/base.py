@@ -178,7 +178,7 @@ ASGI_APPLICATION = 'meong_signal.asgi.application'
 #     'default': {
 #         'BACKEND': 'channels_redis.core.RedisChannelLayer',
 #         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
+#             "hosts": [('3.38.67.165', 6379)],
 #         },
 #     },
 # }
@@ -187,19 +187,12 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(get_secret('REDIS_HOST'), 6379)],
+            "hosts": [(get_secret('REDIS_HOST_1'), 6379),
+                      (get_secret('REDIS_HOST_2'), 6379)],
         },
     },
 }
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
-#         },
-#     },
-# }
 
 ASGI_APPLICATION = 'meong_signal.asgi.application'
 
