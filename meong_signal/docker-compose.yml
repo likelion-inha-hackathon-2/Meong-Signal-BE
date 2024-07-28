@@ -1,9 +1,7 @@
-version: '3'
-
 services:
   nginx:
     build: ./nginx
-    image: chatting_nginx:latest
+    image: backend_nginx:latest
     volumes:
       - static_volume:/usr/src/app/_static
     ports:
@@ -13,7 +11,7 @@ services:
       - web
   web:
     build: .
-    image: chatting_web:latest
+    image: backend_web:latest
     command: daphne -b 0.0.0.0 -p 8000 meong_signal.asgi:application
     volumes:
       - static_volume:/usr/src/app/_static
@@ -32,7 +30,7 @@ services:
     env_file:
       - ./.env.prod.db
   redis:
-    image: redis:alpine # 이렇게 해시를 태그로 사용합니다.
+    image: redis:alpine # 
     ports:
       - "6379:6379"
 
