@@ -11,7 +11,6 @@ from django.utils import timezone
 class ChatConsumer(AsyncWebsocketConsumer):
     #클라이언트가 웹소켓에 연결하려고 할 때 호출
     async def connect(self):
-    
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.room_group_name = f'chat_{self.room_id}'
 
@@ -43,7 +42,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+        message = text_data_json['content']
         sender = self.user
 
         timestamp = timezone.now()
