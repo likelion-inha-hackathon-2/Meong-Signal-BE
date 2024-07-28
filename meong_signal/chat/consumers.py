@@ -87,7 +87,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
     #이 데코레이터! 동기적 db 연산 -> 비동기적 db 연산
     @database_sync_to_async
-    def save_message(self, room_id, sender, message):
+    def save_message(self, room_id, sender, message, timestamp):
         room = ChatRoom.objects.get(id=room_id)
-        msg = Message.objects.create(room=room, sender=sender, content=message)
+        msg = Message.objects.create(room=room, sender=sender, content=message, timestamp=timestamp)
         return msg.timestamp.isoformat()  # 시간을 ISO 포맷으로 변환하여 반환
