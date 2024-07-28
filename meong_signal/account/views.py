@@ -319,3 +319,27 @@ def google_login_callback(request):
     except User.DoesNotExist: # 회원가입 필요한 경우, 일단 프론트로 유저 정보 넘기고, 도로명주소 포함해서 다시 signup 요청하게 함!
         return Response({"is_user" : 0, "social_id":user_social_id, "email" : user_information['email'], "nickname":user_information['name'], "profile_image" : user_information["picture"]}, status=200)
     
+
+##########################################
+# id로 사용자 프로필사진 return
+
+@swagger_auto_schema(
+    method="POST",
+    tags=["account api"],
+    operation_summary="특정 사용자의 프로필 사진 확인",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER)
+        }
+    ),
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def get_user_profile(request):
+    user_id = request.data["id"]
+    try:
+        user = User.objects.get(id = user_id)
+        return Response({"image" : user.profile_image.url}, status=200)
+    except:
+        return Response({"error" : "유저를 찾을 수 없습니다."}, status=400)
