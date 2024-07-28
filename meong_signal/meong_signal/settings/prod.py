@@ -3,7 +3,6 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 import json
 import pymysql
-import environ
 
 pymysql.install_as_MySQLdb()
 
@@ -28,7 +27,7 @@ NAME = get_secret('NAME')
 PASSWORD = get_secret('PASSWORD') 
 HOST = get_secret('HOST') 
 
-ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal-back.o-r.kr', 'meongsignal.kro.kr', 'meong-signal.o-r.kr', 'backend', '15.164.185.48', 'meong-signal.kro.kr']
+ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal-back.o-r.kr', 'meongsignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal.kro.kr']
 
 DATABASES = {
     "default": {
