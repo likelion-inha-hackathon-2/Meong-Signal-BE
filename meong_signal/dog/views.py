@@ -269,6 +269,33 @@ def all_status_dog_list(request):
 
 ##########################################
 
+##########################################
+# api 9 : 특정 강아지 주인의 이메일 조회 api
+@swagger_auto_schema(
+    method="POST", 
+    tags=["강아지 api"],
+    operation_summary="견주 이메일 조회 api",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'dog_id': openapi.Schema(type=openapi.TYPE_NUMBER, description='강아지 Id'),
+        }
+    ),
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+def get_owner_email(request):
+    dog_id = request.data["dog_id"]
+    try:
+        dog = Dog.objects.get(id = dog_id)
+        owner = User.objects.get(id = dog.user_id.id)
+        return Response({"email" : owner.email}, status=status.HTTP_200_OK)
+
+    except:
+        return Response({"error":"dog_id에 대한 강아지가 존재하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+##########################################
+
 
 dummy_data = {
   "dogs": [
@@ -318,3 +345,4 @@ dummy_data = {
 @authentication_classes([JWTAuthentication])
 def dummy_all_status(request):
     return Response(dummy_data, status=200)
+

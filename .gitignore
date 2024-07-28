@@ -7,3 +7,4 @@ secrets.json
 meongenv
 .env.prod
 .env.prod.db
+.env

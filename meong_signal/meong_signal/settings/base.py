@@ -12,6 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 import json
 import os
 from datetime import timedelta
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -55,10 +56,10 @@ DEBUG = True
 ALLOWED_HOSTS = ['meong-signal-back.p-e.kr', 'localhost', '127.0.0.1', 'msignal.kro.kr', 'meong-signal.o-r.kr', 'meong-signal-back.o-r.kr', 'backend', '15.164.185.48', 'meongsignal.kro.kr']
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "account",
     "achievement",
     "dog",
@@ -66,9 +67,9 @@ INSTALLED_APPS = [
     "walk",
     "chat",
     "shop",
+    "walk_status",
     #
     'channels',
-    'daphne',
     'corsheaders',
     'drf_yasg',
     'rest_framework',
@@ -141,6 +142,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://meong-signal-back.p-e.kr",
     "http://meong-signal-back.o-r.kr",
     "https://meong-signal-back.o-r.kr",
+    "http://meong-signal.kro.kr",
+    "https://meong-signal.kro.kr",
   #FE
     "http://meong-signal.o-r.kr",
     "https://meong-signal.o-r.kr",
@@ -169,6 +172,34 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "meong_signal.wsgi.application"
+ASGI_APPLICATION = 'meong_signal.asgi.application'
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(get_secret('REDIS_HOST'), 6379)],
+        },
+    },
+}
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+#         },
+#     },
+# }
 
 ASGI_APPLICATION = 'meong_signal.asgi.application'
 
@@ -244,14 +275,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [(('15.164.185.48',"127.0.0.1"), 6379)],
+#         },
+#     },
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

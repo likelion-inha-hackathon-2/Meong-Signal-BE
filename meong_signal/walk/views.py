@@ -237,7 +237,7 @@ def toggle_trail(request):
     data['user_id'] = user.id
 
     try:
-        trail_exist = Trail.objects.get(name=data['name'])
+        trail_exist = Trail.objects.get(name=data['name'], user_id = user.id)
         # If the trail exists, return 409 Conflict
         return Response({"error": "이미 저장된 산책로입니다."}, status=409)
     except ObjectDoesNotExist:
