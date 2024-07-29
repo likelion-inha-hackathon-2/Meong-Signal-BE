@@ -46,7 +46,7 @@ class ChatRoomList(generics.ListCreateAPIView):
             return Response({'error': 'One or both users do not exist.'}, status=400)
 
         return super().create(request, *args, **kwargs)
-    
+
 ############################
 
 ############################
@@ -78,30 +78,31 @@ def chat_rooms(request):
 
         representative_achievement = UserAchievement.objects.filter(user_id=other_user, is_representative=True).first()
         representative_achievement_title = representative_achievement.achievement_id.title if representative_achievement else None
-        
-        last_message = Message.objects.filter(room=room).order_by('-id').first()
-        last_message_data = {
-            'last_message_content': last_message.content if last_message else None,
-            'last_message_timestamp': last_message.timestamp if last_message else None
-        }
 
-        if (last_message.read == False):
-            last_message_read = False
+        last_message = Message.objects.filter(room=room).order_by('-id').first()
+
+        if last_message:
+            last_message_data = {
+                'last_message_content': last_message.content,
+                'last_message_timestamp': last_message.timestamp,
+                'last_message_read': last_message.read
+            }
         else:
-            last_message_read = True
-        
+            last_message_data = {
+                'last_message_content': None,
+                'last_message_timestamp': None,
+                'last_message_read': True  # 메시지가 없으면 읽은 것으로 간주
+            }
 
         room_data = {
             'id': room.id,
             'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
-
             'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
-
             'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
             'last_message_timestamp': last_message_data['last_message_timestamp'],
-            'last_message_read' : last_message_read,
+            'last_message_read' : last_message_data['last_message_read'],
         }
 
         chat_rooms_data.append(room_data)
@@ -139,7 +140,7 @@ def chat_rooms(request):
 @authentication_classes([JWTAuthentication])
 def enter_chat_room(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
-    
+
     # 상대방 정보 가져오기
     if request.user == chat_room.owner_user:
         other_user = chat_room.user_user
