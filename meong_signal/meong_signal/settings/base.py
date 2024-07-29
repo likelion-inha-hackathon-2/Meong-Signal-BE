@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "chat",
     "shop",
     "walk_status",
+    "schedule",
     #
     'channels',
     'corsheaders',
@@ -174,27 +175,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "meong_signal.wsgi.application"
 ASGI_APPLICATION = 'meong_signal.asgi.application'
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('3.38.67.165', 6379)],
-#         },
-#     },
-# }
-
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(get_secret('REDIS_HOST_1'), 6379),
-                      (get_secret('REDIS_HOST_2'), 6379)],
+            "hosts": [(get_secret('REDIS_HOST_1') , 6379)]
         },
     },
 }
 
-
-ASGI_APPLICATION = 'meong_signal.asgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
