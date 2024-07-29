@@ -79,7 +79,7 @@ def chat_rooms(request):
         }
 
         room_data = {
-            'room_id': room.id,
+            'id': room.id,
             'other_user_nickname': other_user.nickname,
             'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
             'last_message_content': last_message_data['last_message_content'],
