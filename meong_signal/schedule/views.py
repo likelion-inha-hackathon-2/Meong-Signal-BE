@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -15,8 +17,6 @@ from .serializer import *
 
 from account.models import User
 from dog.models import Dog
-
-
 
 #############################
 # 새로운 약속을 생성하는 api
@@ -38,17 +38,17 @@ def create_schedule(request):
     if serializer.is_valid():
         owner_id = serializer.validated_data['owner_id']
         dog_id = serializer.validated_data['dog_id']
-        
+
         try:
             dog = Dog.objects.get(id=dog_id.id)
             if dog.user_id.id != owner_id.id:
                 return Response({'error': '강아지의 주인이 일치하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
         except Dog.DoesNotExist:
             return Response({'error': '일치하는 강아지가 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #############################
@@ -69,20 +69,25 @@ def create_schedule(request):
 @authentication_classes([JWTAuthentication])
 def get_upcoming_schedules(request):
     user = request.user
-    now = timezone.now()
+    now = datetime.datetime.now()
     three_days_later = now + timedelta(days=3)
     one_day_ago = now - timedelta(days=1)
-    
+
+
+    test_schedule = Schedule.objects.get(id=5)
+
+
     #3일 이하로 남은 약속들
     upcoming_schedules = Schedule.objects.filter(
         Q(user_id=user.id) | Q(owner_id=user.id),
-        time__lte=three_days_later,
-        status='Waiting'
+        time__range=(now, three_days_later),
+        status='W'
     )
 
     #약속 시간에서 하루 지난 약속들은 종료 처리
-    past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='Waiting')
+    past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='W')
     past_schedules.update(status='Finish')
+
 
     serializer = ScheduleSerializer(upcoming_schedules, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -94,5 +99,3 @@ def get_upcoming_schedules(request):
 
 #작성 예정
 #############################
-
-
