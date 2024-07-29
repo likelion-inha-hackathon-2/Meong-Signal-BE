@@ -22,18 +22,18 @@ class WalkRoomListCreateView(generics.ListCreateAPIView):
     # GET 요청에 대한 쿼리셋을 정의하는 메소드입니다.
     def get_queryset(self):
         try:
-            # 요청의 쿼리 파라미터에서 'email' 값을 가져옵니다. 없다면 None을 반환합니다.
-            user_email = self.request.query_params.get('email', None)
+            # 요청의 쿼리 파라미터에서 'id' 값을 가져옵니다. 없다면 None을 반환합니다.
+            user_id = self.request.query_params.get('id', None)
 
             # 이메일 파라미터가 없으면 ValidationError 예외를 발생시킵니다.
-            if not user_email:
-                raise ValidationError('Email 파라미터가 필요합니다.')
+            if not user_id:
+                raise ValidationError('Id 파라미터가 필요합니다.')
 
             # 산책방 객체를 필터링하여, 해당 이메일을 가진 사용자가 속한 채팅방을 찾습니다.
             return WalkRoom.objects.filter(
-                owner__owner_email = user_email
+                owner__owner_id = user_id
             ) | WalkRoom.objects.filter(
-                walk_user__walk_user_email = user_email
+                walk_user__walk_user_id = user_id
             )
         except ValidationError as e:
             # ValidationError 발생 시, 상태 코드 400과 함께 에러 상세 정보를 반환합니다.
@@ -72,16 +72,16 @@ class WalkRoomListCreateView(generics.ListCreateAPIView):
 
     # 시리얼라이저를 통해 데이터베이스에 객체를 저장하는 메소드입니다.
     def perform_create(self, serializer):
-        # 요청 데이터에서 owner_email과 walk_user_email을 가져옵니다.
-        owner_email = self.request.data.get('owner_email')
-        walk_user_email = self.request.data.get('walk_user_email')
+        # 요청 데이터에서 owner_id과 walk_user_id을 가져옵니다.
+        owner_id = self.request.data.get('owner_id')
+        walk_user_id = self.request.data.get('walk_user_id')
 
         # 해당 이메일로 Owner와 WalkUser를 가져오거나 없으면 생성합니다.
-        owner, _ = Owner.objects.get_or_create(owner_email=owner_email)
-        walk_user, _ = WalkUser.objects.get_or_create(walk_user_email=walk_user_email)
+        owner, _ = Owner.objects.get_or_create(owner_id=owner_id)
+        walk_user, _ = WalkUser.objects.get_or_create(walk_user_id=walk_user_id)
         
         # 동일한 owner과 walk_user을 가진 채팅방이 이미 있는지 확인합니다.
-        existing_walkroom = WalkRoom.objects.filter(owner__owner_email=owner_email, walk_user__walk_user_email=walk_user_email).first()
+        existing_walkroom = WalkRoom.objects.filter(owner__owner_id=owner_id, walk_user__walk_user_id=walk_user_id).first()
 
         # 이미 존재하는 채팅방이 있다면 해당 채팅방의 정보를 시리얼라이즈하여 응답합니다.
         if existing_walkroom:
