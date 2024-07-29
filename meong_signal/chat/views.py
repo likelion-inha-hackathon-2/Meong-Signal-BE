@@ -138,7 +138,9 @@ def enter_chat_room(request, room_id):
         other_user = chat_room.user_user
     else:
         other_user = chat_room.owner_user
-
+    unread_messages = Message.objects.filter(room=chat_room, read=False).exclude(sender=request.user)
+    unread_messages.update(read=True)
+    
     response_data = {
         'room_id': chat_room.id,
         'room_name': chat_room.name,
@@ -169,7 +171,3 @@ def get_chat_messages(request, room_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 ############################
-
-############################
-# 메시지를 읽음 처리하는 api
-
