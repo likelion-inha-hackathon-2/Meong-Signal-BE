@@ -63,7 +63,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         sender = event['sender_id']
         timestamp = event['timestamp']
+        msg_id = event['msg_id']
 
+        if self.user.id != sender:
+            await self.mark_message_as_read(msg_id)
+        
         await self.send(text_data=json.dumps({
 
             'content': message,
@@ -92,4 +96,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, room_id, sender, message, timestamp):
         room = ChatRoom.objects.get(id=room_id)
         msg = Message.objects.create(room=room, sender=sender, content=message, timestamp=timestamp)
-        return msg.timestamp.isoformat()  # 시간을 ISO 포맷으로 변환하여 반환
+        return msg.id 
+    
+    @database_sync_to_async
+    def mark_message_as_read(self, msg_id):
+        msg = Message.objects.get(id=msg_id)
+        msg.read = True
+        msg.save()
