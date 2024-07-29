@@ -6,6 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.db.models import Q
 from datetime import timedelta
 
 from drf_yasg.utils import swagger_auto_schema
@@ -54,7 +55,11 @@ def get_upcoming_schedules(request):
     one_day_ago = now - timedelta(days=1)
     
     #3일 이하로 남은 약속들
-    upcoming_schedules = Schedule.objects.filter(user_id = user.id, time__lte=three_days_later, status='Waiting')
+    upcoming_schedules = Schedule.objects.filter(
+        Q(user_id=user.id) | Q(owner_id=user.id),
+        time__lte=three_days_later,
+        status='Waiting'
+    )
 
     #약속 시간에서 하루 지난 약속들은 종료 처리
     past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='Waiting')
