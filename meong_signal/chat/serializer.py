@@ -20,13 +20,20 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         fields = ['id', 'owner_user', 'user_user']
 
 class ChatRoomInfoSerializer(serializers.ModelSerializer):
+
+    other_user_profile_image = serializers.SerializerMethodField()
+
     other_user_nickname = serializers.CharField()
-    other_user_profile_image = serializers.ImageField()
-    last_message_content = serializers.CharField()
-    last_message_timestamp = serializers.DateTimeField()
+    #other_user_profile_image = serializers.ImageField()
+    last_message_content = serializers.CharField(allow_null=True)
+    last_message_timestamp = serializers.DateTimeField(allow_null=True)
     other_user_id = serializers.IntegerField()
-    other_user_representative = serializers.BooleanField()
+    other_user_representative = serializers.BooleanField(allow_null=True)
+    last_message_read = serializers.BooleanField()
 
     class Meta:
         model = ChatRoom
-        fields = ['id', 'other_user_nickname', 'other_user_id','other_user_profile_image', 'other_user_representative', 'last_message_content', 'last_message_timestamp']
+        fields = ['id', 'other_user_nickname', 'other_user_id','other_user_profile_image', 'other_user_representative', 'last_message_content', 'last_message_timestamp', 'last_message_read']
+
+    def get_other_user_profile_image(self, obj):
+        return obj.other_user.profile_image.url if obj.other_user.profile_image else None
