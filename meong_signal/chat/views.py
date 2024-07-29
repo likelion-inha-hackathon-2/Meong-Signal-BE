@@ -14,6 +14,7 @@ from achievement.models import UserAchievement
 from django.shortcuts import render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils import timezone
 
 def user1room(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
@@ -89,11 +90,13 @@ def chat_rooms(request):
             'id': room.id,
             'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
-            'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+            #'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+            'other_user_profile_image' : request.build_absolute_uri(other_user.profile_image.url),
             'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
             'last_message_timestamp': last_message_data['last_message_timestamp'],
         }
+
         chat_rooms_data.append(room_data)
 
     serializer = ChatRoomInfoSerializer(chat_rooms_data, many=True)
@@ -166,3 +169,7 @@ def get_chat_messages(request, room_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 ############################
+
+############################
+# 메시지를 읽음 처리하는 api
+
