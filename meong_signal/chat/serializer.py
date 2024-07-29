@@ -24,6 +24,8 @@ class ChatRoomInfoSerializer(serializers.ModelSerializer):
     other_user_profile_image = serializers.ImageField()
     last_message_content = serializers.CharField()
     last_message_timestamp = serializers.DateTimeField()
+    other_user_id = serializers.IntegerField()
+    other_user_representative = serializers.BooleanField()
 
     class Meta:
         model = ChatRoom
