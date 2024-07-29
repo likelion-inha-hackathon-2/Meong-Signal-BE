@@ -1,4 +1,3 @@
-import logging
 import datetime
 
 from rest_framework import status
@@ -18,8 +17,6 @@ from .serializer import *
 
 from account.models import User
 from dog.models import Dog
-
-logger = logging.getLogger(__name__)
 
 #############################
 # 새로운 약속을 생성하는 api
@@ -76,22 +73,21 @@ def get_upcoming_schedules(request):
     three_days_later = now + timedelta(days=3)
     one_day_ago = now - timedelta(days=1)
 
-    logger.debug(f"User: {user.id}, Now: {now}, Three days later: {three_days_later}, One day ago: {one_day_ago}")
+
+    test_schedule = Schedule.objects.get(id=5)
+
 
     #3일 이하로 남은 약속들
     upcoming_schedules = Schedule.objects.filter(
         Q(user_id=user.id) | Q(owner_id=user.id),
-        time__lte=three_days_later,
-        status='Waiting'
+        time__range=(now, three_days_later),
+        status='W'
     )
 
-    logger.debug(f"Upcoming Schedules Query: {upcoming_schedules.query}")
-
     #약속 시간에서 하루 지난 약속들은 종료 처리
-    past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='Waiting')
+    past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='W')
     past_schedules.update(status='Finish')
 
-    logger.debug(f"Past Schedules Query: {past_schedules.query}")
 
     serializer = ScheduleSerializer(upcoming_schedules, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -103,4 +99,3 @@ def get_upcoming_schedules(request):
 
 #작성 예정
 #############################
-
