@@ -5,6 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
+from datetime import timedelta
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -12,6 +14,8 @@ from .serializer import *
 
 from account.models import User
 from dog.models import Dog
+
+
 
 #############################
 # 새로운 약속을 생성하는 api
@@ -39,4 +43,32 @@ def create_schedule(request):
 #############################
 
 #############################
-# 얼마 남지 않은 약속 목록을 반환하는 api
+# 얼마 남지 않은 약속 목록을 반환하는 api + 지난 약속 종료 처리
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_upcoming_schedules(request):
+    user = request.user
+    now = timezone.now()
+    three_days_later = now + timedelta(days=3)
+    one_day_ago = now - timedelta(days=1)
+    
+    #3일 이하로 남은 약속들
+    upcoming_schedules = Schedule.objects.filter(user_id = user.id, time__lte=three_days_later, status='Waiting')
+
+    #약속 시간에서 하루 지난 약속들은 종료 처리
+    past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='Waiting')
+    past_schedules.update(status='Finish')
+
+    serializer = ScheduleSerializer(upcoming_schedules, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+#############################
+
+#############################
+#약속 수정 api
+
+#작성 예정
+#############################
+
+
