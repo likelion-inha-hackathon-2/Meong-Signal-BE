@@ -86,7 +86,7 @@ def chat_rooms(request):
         }
 
         if (last_message.read == False):
-            last_message_read = False,
+            last_message_read = False
         else:
             last_message_read = True
         
