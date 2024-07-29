@@ -6,6 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.db.models import Q
 from datetime import timedelta
 
 from drf_yasg.utils import swagger_auto_schema
@@ -20,6 +21,16 @@ from dog.models import Dog
 #############################
 # 새로운 약속을 생성하는 api
 
+@swagger_auto_schema(
+    method="post",
+    tags=["약속 api"],
+    operation_summary="새로운 약속 생성",
+    request_body=ScheduleSerializer,
+    responses={
+        201: ScheduleSerializer,
+        400: "Bad Request",
+    }
+)
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def create_schedule(request):
@@ -45,6 +56,15 @@ def create_schedule(request):
 #############################
 # 얼마 남지 않은 약속 목록을 반환하는 api + 지난 약속 종료 처리
 
+@swagger_auto_schema(
+    method="get",
+    tags=["약속 api"],
+    operation_summary="남은 시간이 3일 이하인 약속 목록 조회",
+    responses={
+        200: ScheduleSerializer(many=True),
+        400: "Bad Request",
+    }
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 def get_upcoming_schedules(request):
@@ -54,7 +74,11 @@ def get_upcoming_schedules(request):
     one_day_ago = now - timedelta(days=1)
     
     #3일 이하로 남은 약속들
-    upcoming_schedules = Schedule.objects.filter(user_id = user.id, time__lte=three_days_later, status='Waiting')
+    upcoming_schedules = Schedule.objects.filter(
+        Q(user_id=user.id) | Q(owner_id=user.id),
+        time__lte=three_days_later,
+        status='Waiting'
+    )
 
     #약속 시간에서 하루 지난 약속들은 종료 처리
     past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='Waiting')
