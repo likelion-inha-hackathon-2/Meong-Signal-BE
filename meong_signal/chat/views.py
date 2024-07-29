@@ -90,8 +90,7 @@ def chat_rooms(request):
             'id': room.id,
             'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
-            #'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
-            'other_user_profile_image' : request.build_absolute_uri(other_user.profile_image.url),
+            'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
             'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
             'last_message_timestamp': last_message_data['last_message_timestamp'],
@@ -140,7 +139,7 @@ def enter_chat_room(request, room_id):
         other_user = chat_room.owner_user
     unread_messages = Message.objects.filter(room=chat_room, read=False).exclude(sender=request.user)
     unread_messages.update(read=True)
-    
+
     response_data = {
         'room_id': chat_room.id,
         'room_name': chat_room.name,
