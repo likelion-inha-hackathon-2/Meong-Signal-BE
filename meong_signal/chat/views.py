@@ -85,15 +85,24 @@ def chat_rooms(request):
             'last_message_timestamp': last_message.timestamp if last_message else None
         }
 
+        if (last_message.read == False):
+            last_message_read = False,
+        else:
+            last_message_read = True
+        
 
         room_data = {
             'id': room.id,
             'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
-            'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+
+            #'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+            'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url) if other_user.profile_image else None,
+
             'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
             'last_message_timestamp': last_message_data['last_message_timestamp'],
+            'last_message_read' : last_message_read,
         }
 
         chat_rooms_data.append(room_data)
