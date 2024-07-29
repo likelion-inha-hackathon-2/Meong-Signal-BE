@@ -21,7 +21,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if token_key != 'token':
             await self.close()
             return
-        
+
         self.user = await self.get_user_from_token(token_value)
 
         if self.user.is_anonymous:
@@ -46,16 +46,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = self.user
 
         timestamp = timezone.now()
-        await self.save_message(self.room_id, sender, message, timestamp)
+        msg_id = await self.save_message(self.room_id, sender, message, timestamp)
 
         await self.channel_layer.group_send(
             self.room_group_name,
-            {   
+            {
                 'type': 'chat_message',
                 'message': message,
                 'sender_id': sender.id,
                 'room_id' : self.room_id,
                 'timestamp': timestamp.isoformat(),
+                'msg_id' : msg_id,
             }
         )
 
@@ -67,7 +68,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if self.user.id != sender:
             await self.mark_message_as_read(msg_id)
-        
+
         await self.send(text_data=json.dumps({
 
             'content': message,
@@ -90,14 +91,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return user
         except (InvalidToken, TokenError) as e:
             return AnonymousUser()
-        
+
     #이 데코레이터! 동기적 db 연산 -> 비동기적 db 연산
     @database_sync_to_async
     def save_message(self, room_id, sender, message, timestamp):
         room = ChatRoom.objects.get(id=room_id)
         msg = Message.objects.create(room=room, sender=sender, content=message, timestamp=timestamp)
-        return msg.id 
-    
+        return msg.id
+
     @database_sync_to_async
     def mark_message_as_read(self, msg_id):
         msg = Message.objects.get(id=msg_id)
