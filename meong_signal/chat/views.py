@@ -96,8 +96,7 @@ def chat_rooms(request):
             'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
 
-            #'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
-            'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url) if other_user.profile_image else None,
+            'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
 
             'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
