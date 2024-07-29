@@ -21,6 +21,16 @@ from dog.models import Dog
 #############################
 # 새로운 약속을 생성하는 api
 
+@swagger_auto_schema(
+    method="post",
+    tags=["약속 api"],
+    operation_summary="새로운 약속 생성",
+    request_body=ScheduleSerializer,
+    responses={
+        201: ScheduleSerializer,
+        400: "Bad Request",
+    }
+)
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def create_schedule(request):
@@ -46,6 +56,15 @@ def create_schedule(request):
 #############################
 # 얼마 남지 않은 약속 목록을 반환하는 api + 지난 약속 종료 처리
 
+@swagger_auto_schema(
+    method="get",
+    tags=["약속 api"],
+    operation_summary="남은 시간이 3일 이하인 약속 목록 조회",
+    responses={
+        200: ScheduleSerializer(many=True),
+        400: "Bad Request",
+    }
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 def get_upcoming_schedules(request):
