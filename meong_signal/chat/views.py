@@ -8,10 +8,13 @@ from rest_framework import status
 from .models import ChatRoom, Message
 from .serializer import *
 from account.models import User
+from achievement.models import UserAchievement
+
 
 from django.shortcuts import render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils import timezone
 
 def user1room(request, room_id):
     chat_room = get_object_or_404(ChatRoom, id=room_id)
@@ -66,25 +69,34 @@ def chat_rooms(request):
     rooms = ChatRoom.objects.filter(owner_user=user) | ChatRoom.objects.filter(user_user=user)
 
     chat_rooms_data = []
+
     for room in rooms:
         if room.owner_user == user:
             other_user = room.user_user
         else:
             other_user = room.owner_user
 
+        representative_achievement = UserAchievement.objects.filter(user_id=other_user, is_representative=True).first()
+        representative_achievement_title = representative_achievement.achievement_id.title if representative_achievement else None
+        
         last_message = Message.objects.filter(room=room).order_by('-id').first()
         last_message_data = {
             'last_message_content': last_message.content if last_message else None,
             'last_message_timestamp': last_message.timestamp if last_message else None
         }
 
+
         room_data = {
             'id': room.id,
+            'other_user_id': other_user.id,
             'other_user_nickname': other_user.nickname,
-            'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+            #'other_user_profile_image': other_user.profile_image.url if other_user.profile_image else None,
+            'other_user_profile_image' : request.build_absolute_uri(other_user.profile_image.url),
+            'other_user_representative': representative_achievement_title,
             'last_message_content': last_message_data['last_message_content'],
             'last_message_timestamp': last_message_data['last_message_timestamp'],
         }
+
         chat_rooms_data.append(room_data)
 
     serializer = ChatRoomInfoSerializer(chat_rooms_data, many=True)
@@ -126,7 +138,9 @@ def enter_chat_room(request, room_id):
         other_user = chat_room.user_user
     else:
         other_user = chat_room.owner_user
-
+    unread_messages = Message.objects.filter(room=chat_room, read=False).exclude(sender=request.user)
+    unread_messages.update(read=True)
+    
     response_data = {
         'room_id': chat_room.id,
         'room_name': chat_room.name,
