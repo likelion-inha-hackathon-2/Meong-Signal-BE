@@ -97,5 +97,40 @@ def get_upcoming_schedules(request):
 #############################
 #약속 수정 api
 
-#작성 예정
+# 수정 가능한 정보 : [시간, 약속이름, 상태]
+# 수정 불가한 정보 : [id, 견주 id, 강아지 id, 유저 id]
+
+@swagger_auto_schema(
+    method="PUT",
+    tags=["약속 api"],
+    operation_summary="약속 정보 수정 api",
+    request_body=ScheduleUpdateSerializer,
+    responses={
+        200: ScheduleUpdateSerializer,
+        400: 'Bad Request',
+        401: 'Unauthorized'
+    }
+)
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+def update_schedule(request, schedule_id):
+    user = request.user
+    data = request.data
+    try:
+        schedule = Schedule.objects.get(id = schedule_id)
+        
+    except:
+        return Response({"error" : "id에 맞는 약속 정보를 확인할 수 없습니다."}, status=400)
+
+    if 'status' in data:
+        if data["status"] not in ('W', 'R', 'F'):
+            return Response({"error" : "status는 W, R, F중에서만 설정 가능합니다."}, status=400)
+        
+    serializer = ScheduleUpdateSerializer(schedule, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message':'정상적으로 수정되었습니다.'}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 #############################
