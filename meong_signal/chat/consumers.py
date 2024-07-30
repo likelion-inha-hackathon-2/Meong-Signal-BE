@@ -48,6 +48,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         timestamp = timezone.now()
         msg_id = await self.save_message(self.room_id, sender, message, timestamp)
 
+        await self.mark_message_as_read(msg_id, sender=True)
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -65,10 +67,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = event['sender_id']
         timestamp = event['timestamp']
         msg_id = event['msg_id']
-        room_id = event['room_id']
 
         if self.user.id != sender:
-            await self.mark_message_as_read(msg_id)
+            await self.mark_message_as_read(msg_id, sender=False)
 
         await self.send(text_data=json.dumps({
 
@@ -101,11 +102,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return msg.id
 
     @database_sync_to_async
-    def mark_message_as_read(self, msg_id):
+    def mark_message_as_read(self, msg_id, sender):
         msg = Message.objects.get(id=msg_id)
-        room = ChatRoom.objects.get(id=self.room_id)
-        if room.owner_user == self.user:
-            msg.owner_read = True
-        elif room.user_user == self.user:
-            msg.user_read = True
+        if sender:
+            if msg.room.owner_user == self.user:
+                msg.owner_read = True
+            elif msg.room.user_user == self.user:
+                msg.user_read = True
+        else:
+            if msg.room.owner_user == self.user:
+                msg.owner_read = True
+            elif msg.room.user_user == self.user:
+                msg.user_read = True
         msg.save()
