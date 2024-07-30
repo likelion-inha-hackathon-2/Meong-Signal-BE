@@ -102,5 +102,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def mark_message_as_read(self, msg_id):
         msg = Message.objects.get(id=msg_id)
-        msg.read = True
+        msg.owner_read = True
+        msg.user_read = True
         msg.save()
