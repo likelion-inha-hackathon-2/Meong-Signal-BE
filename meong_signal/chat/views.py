@@ -72,27 +72,48 @@ def chat_rooms(request):
 
     for room in rooms:
         if room.owner_user == user:
+            #로그인한 유저 ('나')가 owner_user. 상대 user_user
             other_user = room.user_user
+
+            representative_achievement = UserAchievement.objects.filter(user_id=other_user, is_representative=True).first()
+            representative_achievement_title = representative_achievement.achievement_id.title if representative_achievement else None
+
+            last_message = Message.objects.filter(room=room).order_by('-id').first()
+
+            if last_message:
+                last_message_data = {
+                    'last_message_content': last_message.content,
+                    'last_message_timestamp': last_message.timestamp,
+                    'last_message_read': last_message.owner_read
+                }
+            else:
+                last_message_data = {
+                    'last_message_content': None,
+                    'last_message_timestamp': None,
+                    'last_message_read': True  # 메시지가 없으면 읽은 것으로 간주
+                }
+
         else:
+            #로그인한 유저('나')가 user_user. 상대 owner_user
             other_user = room.owner_user
 
-        representative_achievement = UserAchievement.objects.filter(user_id=other_user, is_representative=True).first()
-        representative_achievement_title = representative_achievement.achievement_id.title if representative_achievement else None
+            representative_achievement = UserAchievement.objects.filter(user_id=other_user, is_representative=True).first()
+            representative_achievement_title = representative_achievement.achievement_id.title if representative_achievement else None
 
-        last_message = Message.objects.filter(room=room).order_by('-id').first()
+            last_message = Message.objects.filter(room=room).order_by('-id').first()
 
-        if last_message:
-            last_message_data = {
-                'last_message_content': last_message.content,
-                'last_message_timestamp': last_message.timestamp,
-                'last_message_read': last_message.read
-            }
-        else:
-            last_message_data = {
-                'last_message_content': None,
-                'last_message_timestamp': None,
-                'last_message_read': True  # 메시지가 없으면 읽은 것으로 간주
-            }
+            if last_message:
+                last_message_data = {
+                    'last_message_content': last_message.content,
+                    'last_message_timestamp': last_message.timestamp,
+                    'last_message_read': last_message.user_read
+                }
+            else:
+                last_message_data = {
+                    'last_message_content': None,
+                    'last_message_timestamp': None,
+                    'last_message_read': True  # 메시지가 없으면 읽은 것으로 간주
+                }
 
         room_data = {
             'id': room.id,
@@ -143,19 +164,38 @@ def enter_chat_room(request, room_id):
 
     # 상대방 정보 가져오기
     if request.user == chat_room.owner_user:
+        #로그인한 유저('나')가 견주일 때 (상대방 사용자)
         other_user = chat_room.user_user
-    else:
-        other_user = chat_room.owner_user
-    unread_messages = Message.objects.filter(room=chat_room, read=False).exclude(sender=request.user)
-    unread_messages.update(read=True)
 
-    response_data = {
-        'room_id': chat_room.id,
-        'room_name': chat_room.name,
-        'other_user_nickname': other_user.nickname,
-        'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url),
-        'websocket_url': f"wss://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
-    }
+        unread_messages = Message.objects.filter(room=chat_room, owner_read=False)
+        unread_messages.update(owner_read=True)
+
+        response_data = {
+            
+            'room_id': chat_room.id,
+            'room_name': chat_room.name,
+            'other_user_nickname': other_user.nickname,
+            'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url),
+            'websocket_url': f"wss://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
+
+        }
+
+    else:
+        #로그인한 유저('나')가 사용자일 때 (상대방 견주)
+        other_user = chat_room.owner_user
+
+        unread_messages = Message.objects.filter(room=chat_room, user_read=False)
+        unread_messages.update(user_read=True)
+
+        response_data = {
+
+            'room_id': chat_room.id,
+            'room_name': chat_room.name,
+            'other_user_nickname': other_user.nickname,
+            'other_user_profile_image': request.build_absolute_uri(other_user.profile_image.url),
+            'websocket_url': f"wss://{request.get_host()}/ws/chat/{chat_room.id}/?token={request.auth.token}"
+            
+        }
 
     return Response(response_data, status=status.HTTP_200_OK)
 
