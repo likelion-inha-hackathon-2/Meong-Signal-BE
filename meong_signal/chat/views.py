@@ -107,12 +107,14 @@ def chat_rooms(request):
 
             last_message = Message.objects.filter(room=room).order_by('-id').first()
 
-            if last_message.sender == user:
-                last_message_read = True
-            else :
-                last_message_read = last_message.user_read
 
             if last_message:
+
+                if last_message.sender == user:
+                    last_message_read = True
+                else :
+                    last_message_read = last_message.user_read
+                    
                 last_message_data = {
                     'last_message_content': last_message.content,
                     'last_message_timestamp': last_message.timestamp,
