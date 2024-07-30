@@ -26,7 +26,7 @@ class ChatRoomInfoSerializer(serializers.ModelSerializer):
     last_message_content = serializers.CharField(allow_null=True)
     last_message_timestamp = serializers.DateTimeField(allow_null=True)
     other_user_id = serializers.IntegerField()
-    other_user_representative = serializers.BooleanField(allow_null=True)
+    other_user_representative = serializers.CharField()
     last_message_read = serializers.BooleanField()
 
     class Meta:
