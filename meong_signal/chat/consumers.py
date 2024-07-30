@@ -65,6 +65,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = event['sender_id']
         timestamp = event['timestamp']
         msg_id = event['msg_id']
+        room_id = event['room_id']
 
         if self.user.id != sender:
             await self.mark_message_as_read(msg_id)
@@ -102,6 +103,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def mark_message_as_read(self, msg_id):
         msg = Message.objects.get(id=msg_id)
-        msg.owner_read = True
-        msg.user_read = True
+        room = ChatRoom.objects.get(id=self.room_id)
+        if room.owner_user == self.user:
+            msg.owner_read = True
+        elif room.user_user == self.user:
+            msg.user_read = True
         msg.save()
