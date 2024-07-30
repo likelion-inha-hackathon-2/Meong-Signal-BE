@@ -80,11 +80,16 @@ def chat_rooms(request):
 
             last_message = Message.objects.filter(room=room).order_by('-id').first()
 
+            if last_message.sender == user:
+                last_message_read = True
+            else :
+                last_message_read = last_message.owner_read
+
             if last_message:
                 last_message_data = {
                     'last_message_content': last_message.content,
                     'last_message_timestamp': last_message.timestamp,
-                    'last_message_read': last_message.owner_read
+                    'last_message_read': last_message_read
                 }
             else:
                 last_message_data = {
@@ -102,11 +107,16 @@ def chat_rooms(request):
 
             last_message = Message.objects.filter(room=room).order_by('-id').first()
 
+            if last_message.sender == user:
+                last_message_read = True
+            else :
+                last_message_read = last_message.user_read
+
             if last_message:
                 last_message_data = {
                     'last_message_content': last_message.content,
                     'last_message_timestamp': last_message.timestamp,
-                    'last_message_read': last_message.user_read
+                    'last_message_read': last_message_read
                 }
             else:
                 last_message_data = {
