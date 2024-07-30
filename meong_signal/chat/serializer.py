@@ -9,7 +9,7 @@ class MessageSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Message
-        fields = ['id', 'room', 'sender', 'sender_profile_image', 'content', 'timestamp', 'read']
+        fields = ['id', 'room', 'sender', 'sender_profile_image', 'content', 'timestamp', 'owner_read', 'user_user']
 
     def get_sender_profile_image(self, obj):
         return obj.sender.profile_image.url if obj.sender.profile_image else None
@@ -26,7 +26,7 @@ class ChatRoomInfoSerializer(serializers.ModelSerializer):
     last_message_content = serializers.CharField(allow_null=True)
     last_message_timestamp = serializers.DateTimeField(allow_null=True)
     other_user_id = serializers.IntegerField()
-    other_user_representative = serializers.CharField()
+    other_user_representative = serializers.CharField(allow_null=True)
     last_message_read = serializers.BooleanField()
 
     class Meta:
