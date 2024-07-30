@@ -9,7 +9,7 @@ class MessageSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Message
-        fields = ['id', 'room', 'sender', 'sender_profile_image', 'content', 'timestamp', 'owner_read', 'user_user']
+        fields = ['id', 'room', 'sender', 'sender_profile_image', 'content', 'timestamp', 'owner_read', 'user_read']
 
     def get_sender_profile_image(self, obj):
         return obj.sender.profile_image.url if obj.sender.profile_image else None
