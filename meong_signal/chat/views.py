@@ -9,6 +9,7 @@ from .models import ChatRoom, Message
 from .serializer import *
 from account.models import User
 from achievement.models import UserAchievement
+from dog.models import Dog
 
 
 from django.shortcuts import render, get_object_or_404
@@ -41,10 +42,13 @@ class ChatRoomList(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         owner_user_id = request.data.get('owner_user')
         user_user_id = request.data.get('user_user')
+        dog_id = request.data.get('dog_id')
 
         if not (User.objects.filter(id=owner_user_id).exists() and User.objects.filter(id=user_user_id).exists()):
             return Response({'error': 'One or both users do not exist.'}, status=400)
-
+        if not Dog.objects.filter(id=dog_id, user_id=owner_user_id):
+            return Response({'error' : '정보와 일치하는 강아지가 없습니다.'})
+        
         return super().create(request, *args, **kwargs)
 
 ############################
