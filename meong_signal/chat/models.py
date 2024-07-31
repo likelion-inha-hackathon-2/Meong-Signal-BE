@@ -1,10 +1,12 @@
 from django.db import models
 from account.models import User
+from dog.models import Dog
 
 class ChatRoom(models.Model):
     owner_user = models.ForeignKey(User, related_name='owner_user_chatroom', on_delete=models.CASCADE)
     user_user = models.ForeignKey(User, related_name='user_user_chatroom', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=True)
+    dog_id=models.ForeignKey(Dog, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.name:
