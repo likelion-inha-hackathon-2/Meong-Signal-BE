@@ -143,7 +143,7 @@ def dog_list(request):
 def boring_dog_list(request):
     dogs = Dog.objects.filter(status = 'B') # 심심한 강아지 목록
     try:
-        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs, request.user.id)
     except:
         return Response({"message":"심심한 강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -205,7 +205,7 @@ def search_by_tag(request, tag_number):
     dogs = [dog_tag.dog_id for dog_tag in dog_tags] # 특정 태그 강아지 목록
 
     try:
-        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs, request.user.id)
     except:
         return Response({"message":"강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -259,7 +259,7 @@ def dog_info(request, dog_id):
 def all_status_dog_list(request):
     dogs = Dog.objects.all() # 모든
     try:
-        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs)
+        return_data = finding_dogs_around_you(request.data['latitude'], request.data['longitude'],  dogs, request.user.id)
     except:
         return Response({"message":"강아지를 불러오는데 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
     
