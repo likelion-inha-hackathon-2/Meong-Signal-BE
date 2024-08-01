@@ -134,3 +134,30 @@ def update_schedule(request, schedule_id):
 
 
 #############################
+
+
+#############################
+# Walking중인 내 강아지와 산책자 정보 구하는 api
+
+@swagger_auto_schema(
+    method="get",
+    tags=["약속 api"],
+    operation_summary="Walking중인 내 강아지와 산책자 정보 구하는 api",
+)
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+def get_walking_dogs(request):
+    walking_dogs_info = {"walking_dogs" : []}
+    user = request.user
+
+    schedules = Schedule.objects.filter(owner_id = user, status = 'W')
+    for schedule in schedules:
+        dog_id = schedule.dog_id.id
+        dog_image = schedule.dog_id.image.url
+        dog_name = schedule.dog_id.name
+        walk_user_id = schedule.user_id.id
+
+        walking_dog_info = {"dog_id" : dog_id, "dog_image" : dog_image, "dog_name" : dog_name, "walk_user_id" : walk_user_id}
+        walking_dogs_info["walking_dogs"].append(walking_dog_info)
+        
+    return Response(walking_dogs_info, status=200)
