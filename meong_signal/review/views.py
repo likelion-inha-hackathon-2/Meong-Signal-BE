@@ -166,11 +166,11 @@ def get_received_reviews(request):
     walk_reviews = WalkingReview.objects.filter(owner_id = user.id)
 
     for user_review in user_reviews:
-        evaluated_user = user_review.user_id
+        evaluated_user = user_review.owner_id 
         return_data["user_review"].append({"evaluated_user_name":evaluated_user.nickname, "evaluated_user_profile":evaluated_user.profile_image.url, "rating":user_review.rating, "content":user_review.content})
     
     for walk_review in walk_reviews:
-        evaluated_user = walk_review.owner_id
+        evaluated_user = walk_review.user_id 
         tags = ReviewTag.objects.filter(review_id = walk_review.id)
         tags_list = [{"number": tag.number} for tag in tags]
         return_data["walking_review"].append({"evaluated_user_name":evaluated_user.nickname, "evaluated_user_profile":evaluated_user.profile_image.url, "content":walk_review.content, "tags" : tags_list})
