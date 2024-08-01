@@ -73,28 +73,29 @@ def get_distance_v2(origin_address, destination_road_address):
 
 
 # 사용자와의 거리가 2km 이내인 강아지 필터링
-def finding_dogs_around_you(lat1, lon1, dogs):
+def finding_dogs_around_you(lat1, lon1, dogs, user_id):
     return_data = {"dogs":[], "count":0}
 
     for dog in dogs:
         dog_user_id = dog.user_id.id
-        dog_user =  User.objects.get(id=dog_user_id) # 견주
-        dog_user_address = dog_user.road_address # 견주의 위치(도로명주소)
+        if dog_user_id != user_id: # 본인 강아지 제외
+            dog_user =  User.objects.get(id=dog_user_id) # 견주
+            dog_user_address = dog_user.road_address # 견주의 위치(도로명주소)
 
-        total_count, lat2, lon2 = coordinate_send_request(dog_user_address)
-        if total_count == 0:
-            print("위,경도 탐색 실패")
-            break
-        point1 = (float(lat1), float(lon1))
-        point2 = (float(lat2), float(lon2))
-    
-
-        distance = haversine(point1, point2)
+            total_count, lat2, lon2 = coordinate_send_request(dog_user_address)
+            if total_count == 0:
+                print("위,경도 탐색 실패")
+                break
+            point1 = (float(lat1), float(lon1))
+            point2 = (float(lat2), float(lon2))
         
-        if distance <= 2: # 경로를 찾은 경우 and 경로가 2km 이내인 경우
-            around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":float(f"{distance:.{1}f}"), "image":dog.image.url, "status":dog.status}
-            return_data["dogs"].append(around_dog)
-            return_data["count"] += 1
+
+            distance = haversine(point1, point2)
+            
+            if distance <= 2: # 경로를 찾은 경우 and 경로가 2km 이내인 경우
+                around_dog = {"id":dog.id, "name":dog.name, "road_address":dog_user.road_address, "distance":float(f"{distance:.{1}f}"), "image":dog.image.url, "status":dog.status}
+                return_data["dogs"].append(around_dog)
+                return_data["count"] += 1
  
     return return_data
 
