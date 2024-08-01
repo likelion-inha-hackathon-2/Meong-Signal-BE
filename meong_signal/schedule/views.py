@@ -132,10 +132,6 @@ def update_schedule(request, schedule_id):
         return Response({'message':'정상적으로 수정되었습니다.'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-#############################
-
-
 #############################
 # Walking중인 내 강아지와 산책자 정보 구하는 api
 
@@ -161,3 +157,27 @@ def get_walking_dogs(request):
         walking_dogs_info["walking_dogs"].append(walking_dog_info)
         
     return Response(walking_dogs_info, status=200)
+
+#############################
+# 약속 삭제 api
+
+@swagger_auto_schema(
+    method="delete",
+    tags=["약속 api"],
+    operation_summary="약속 삭제",
+    responses={
+        204: "No Content",
+        404: "Not Found",
+    }
+)
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+def delete_appointment(request, app_id):
+    try:
+        appointment = Schedule.objects.get(id=app_id)
+        appointment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Schedule.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+############################
