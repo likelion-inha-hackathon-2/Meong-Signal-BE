@@ -146,7 +146,7 @@ def get_walking_dogs(request):
     walking_dogs_info = {"walking_dogs" : []}
     user = request.user
 
-    schedules = Schedule.objects.filter(owner_id = user, status = 'W')
+    schedules = Schedule.objects.filter(owner_id = user, status = 'R')
     for schedule in schedules:
         dog_id = schedule.dog_id.id
         dog_image = schedule.dog_id.image.url
