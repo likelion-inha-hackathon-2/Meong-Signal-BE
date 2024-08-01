@@ -134,3 +134,27 @@ def update_schedule(request, schedule_id):
 
 
 #############################
+
+#############################
+# 약속 삭제 api
+
+@swagger_auto_schema(
+    method="delete",
+    tags=["약속 api"],
+    operation_summary="약속 삭제",
+    responses={
+        204: "No Content",
+        404: "Not Found",
+    }
+)
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+def delete_appointment(request, app_id):
+    try:
+        appointment = Schedule.objects.get(id=app_id)
+        appointment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Schedule.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+############################

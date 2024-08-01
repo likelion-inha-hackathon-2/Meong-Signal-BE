@@ -5,5 +5,6 @@ from . import views
 urlpatterns = [
     path('appointment', views.create_schedule),
     path('upcoming', views.get_upcoming_schedules),
-    path('<int:schedule_id>', views.update_schedule)
+    path('<int:schedule_id>', views.update_schedule),
+    path('del/<int:app_id>', views.delete_appointment),
 ]
