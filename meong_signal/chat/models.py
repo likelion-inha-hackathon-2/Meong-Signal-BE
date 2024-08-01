@@ -8,6 +8,9 @@ class ChatRoom(models.Model):
     name = models.CharField(max_length=255, blank=True)
     dog_id=models.ForeignKey(Dog, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('owner_user', 'user_user')
+
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = f'{self.owner_user.nickname} - {self.user_user.nickname}'
