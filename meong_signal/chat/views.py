@@ -49,7 +49,13 @@ class ChatRoomList(generics.ListCreateAPIView):
         if not Dog.objects.filter(id=dog_id, user_id=owner_user_id):
             return Response({'error' : '정보와 일치하는 강아지가 없습니다.'})
         
-        return super().create(request, *args, **kwargs)
+        try:
+            # 이미 채팅방 존재하는 경우
+            chat_room = ChatRoom.objects.get(user_user = user_user_id, owner_user = owner_user_id)
+            serializer = self.get_serializer(chat_room)
+            return Response(serializer.data, status=200)
+        except:
+            return super().create(request, *args, **kwargs)
 
 ############################
 
