@@ -73,10 +73,6 @@ def get_upcoming_schedules(request):
     three_days_later = now + timedelta(days=3)
     one_day_ago = now - timedelta(days=1)
 
-
-    test_schedule = Schedule.objects.get(id=5)
-
-
     #3일 이하로 남은 약속들
     upcoming_schedules = Schedule.objects.filter(
         Q(user_id=user.id) | Q(owner_id=user.id),
@@ -86,8 +82,7 @@ def get_upcoming_schedules(request):
 
     #약속 시간에서 하루 지난 약속들은 종료 처리
     past_schedules = Schedule.objects.filter(user_id = user.id, time__lte=one_day_ago, status='W')
-    past_schedules.update(status='Finish')
-
+    past_schedules.update(status='F')
 
     serializer = ScheduleSerializer(upcoming_schedules, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
