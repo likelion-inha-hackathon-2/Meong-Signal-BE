@@ -96,9 +96,9 @@
 <br><br>
 
 ## api 명세
-<br>
+
 ### [🛠️멍 시그널 기능명세 노션 링크](https://abyss-2.notion.site/e607658be211483a9aa4f76c5e8223c2?pvs=4)
-<br>
+
 ## 개발 과정
 (슬라이드 제작해서 첨부)
 <br><br>
