@@ -63,6 +63,20 @@
 ## 주요 기능
 ![주요기능](meong_signal/static/readme/6.png)
 <br><br>
+**사용자 위치 기반 지도**
+- 도그워커의 현재 위치를 기반으로 주변의 강아지 정보를 불러옵니다.
+- 견주의 집 위치를 기반으로 강아지 정보를 생성합니다.
+- 도그워커가 견주의 강아지와 산책 중일 때, 견주는 도그워커의 현재 위치를 원격으로 볼 수 있습니다.
+- 도그워커가 이동한 경로가 지도에 표시되며, 이동 거리와 소모 칼로리가 계산됩니다.
+
+**실시간 채팅**
+- 도그워커가 지도에서 강아지의 정보를 확인하고, 견주와 채팅을 시작할 수 있습니다.
+- 채팅방 안에서 날짜와 시간, 약속명을 설정하여 약속을 생성할 수 있습니다.
+- 채팅방 목록에서 곧 다가오는 산책 약속을 확인할 수 있습니다.
+
+ **다양한 재미요소**
+ 
+<br><br>
 
 ## 상세 기능
 <br><br>
@@ -91,7 +105,9 @@
 
 ![팀 소개 페이지](meong_signal/static/readme/7.png)
 
+ [황수연(FE 테크리더)](https://github.com/H-sooyeon)
+
 | 김시원 | 김애리 | 백세희 | 유승인 | 이영주 |
 | ------ | ------ |------| ------ | ------ |
 | BE | FE | BE | FE | FE |
-| @seaniiio | @aeli22 | @sae2say | @seung-in-Yoo | @abyss-s |
+| [@seaniiio](https://github.com/seaniiio) | [@aeli22](https://github.com/aeli22) | [@sae2say](https://github.com/sae2say) | [@seung-in-Yoo](https://github.com/seung-in-Yoo) | [@abyss-s](https://github.com/abyss-s) |
