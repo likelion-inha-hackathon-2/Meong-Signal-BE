@@ -368,12 +368,14 @@ def walk_user_image(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 def walk_and_review_info(request):
-    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "image" : "walks/default_walk", "dog_image":"", "reviewer_nickname":""}
+    return_data = {"dog_name" : '', "total_distance" : 0, "my_profile_image" : "", "reviewer_profile_image" : "", "reviewer_average_rating" : 0, "my_review" : "", "received_review" : "", "dog_image":"", "reviewer_nickname":"", "distance" : 0, "date" : "", "time" : 0}
     user = request.user
     walk_id = request.data['walk_id']
     try:
         walk = Walk.objects.get(id = walk_id)
-        return_data["image"] = walk.image.url
+        return_data["distance"] = walk.distance
+        return_data["date"] = walk.date
+        return_data["time"] = walk.time
     
         dog = Dog.objects.get(id=walk.dog_id.id)
         return_data["dog_name"] = dog.name
