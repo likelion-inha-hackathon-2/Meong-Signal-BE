@@ -1,45 +1,73 @@
-# 서버 실행 방법
+# 🐶 Meong Signal
 
-## 1. 가상환경 설정
+> Team 감자탕후루 |
+> 김시원 김애리 백세희 유승인 이영주
 
-### 가상환경 생성
+![리드미 메인](meong_signal/static/readme/2.png)
 
-python3 -m venv hackenv
+<br>
 
-### 가상환경 실행
+더 건강하개, 더 재미있개! 
+### [🛠️멍 시그널 배포 링크 바로가기](https://meong-signal.o-r.kr)
+### [🎬멍 시그널 홍보 영상 바로가기](https://youtu.be/h0KIWaUEIgQ?si=co_bW1BQYAooSH2E)
+<br>
 
-source hackenv/bin/activate
+### 📂 Content
+- [🔎 기술 스택](#-기술-스택)
+- [🔎 서비스 고안 배경](#-서비스-고안-배경)
+- [🔎 서비스 개요](#-서비스-개요)
+- [🔎 주요 기능](#-주요-기능)
+- [🔎 상세 기능](#-상세-기능)
+- [🔎 서버 아키텍처](#-서버-아키텍처)
+- [🔎 와이어프레임](#-와이어프레임)
+- [🔎 데이터베이스 구조](#-데이터베이스-구조-|-ERD-Diagram)
+- [🔎 api 명세](#-api-명세)
+- [🔎 개발 과정](#-개발-과정)
+- [🔎 팀 소개](#-팀-소개)
 
-### 가상환경에 requirements.txt 목록 설치(requirements.txt 존재하는 경로에서 명령어 입력)
+<br>
 
-pip install -r requirements.txt
+## <a id="기술-스택'></a>기술 스택
+![기술 스택](meong_signal/static/readme/3.png)
+<br>
+> 백엔드 개발 : django
+>
+> 데이터베이스 관리 : AWS RDS(mysql)
+> 
+> 서버 배포 : AWS EC2
+> 
+> 협업 툴 : notion, slack, git, github, Figma
 
-## 2. 장고 서버 실행
+(프론트는 몰라서 아직 못썼어요ㅜ)
 
-### secrets.json 생성
+## 서비스 고안 배경
+(노션에서 개발 동기 가져오기)
 
-노션 BE페이지에 적어둔대로 secrets.json 생성 및 저장
+## 서비스 개요
+(간략하게 주요 서비스 매커니즘 설명)
 
-### migrate
+## 주요 기능
+()
+## 상세 기능
 
-python manage.py migrate
+## 서버 아키텍처
 
-### manage.py 존재하는 경로에서 아래의 명령어 입력
+## 와이어프레임
+![와이어프레임](meong_signal/static/readme/4.png)
+## 데이터베이스 구조 | ERD Diagram
 
-python manage.py runserver
+## api 명세
 
-## 3. swagger로 데이터 입출력 확인
+## 개발 과정
+(슬라이드 제작해서 첨부)
 
-http://localhost:8000/swagger/ 접속 후 테스트
+## 팀 소개
 
-# swagger 테스트 방법
+멋쟁이사자처럼 인하대학교 12기 중앙 해커톤 1팀, 감자탕후루 팀입니다. 
 
-## 1. 테스트용 회원 생성
+![팀 소개 페이지](meong_signal/static/readme/7.png)
 
-## 2. 로그인 후 access_token 복사
-
-## 3. authorize버튼 클릭 후, Bearer + access_token 입력
-
-ex) Bearer ewieufowi~
-
-## 4. 인증 필요한 api 테스트
+| 김시원 | 김애리 | 백세희 | 유승인 | 이영주 |
+| ------ | ------ |------| ------ | ------ |
+| BE | FE | BE | FE | FE |
+| @seaniiio | @aeli22 | @sae2say | @seung-in-Yoo | @abyss-s |
