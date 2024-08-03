@@ -127,6 +127,7 @@ def new_walk(request):
 
     if isinstance(data, QueryDict):
         data = QueryDict.dict(data)
+
     try:
         dog = Dog.objects.get(id = data["dog_id"])
         if dog.user_id.id == user: # 강아지 주인의 id와 user id가 같을시 return
@@ -142,7 +143,7 @@ def new_walk(request):
     if walks.exists():
         week_distance_before = walks.aggregate(Sum('distance'))['distance__sum']
         week_unique_dog_count_before = walks.values('dog_id').distinct().count()
-
+    
     serializer = WalkRegisterSerializer(data=data, context={'request': request})
     if serializer.is_valid():
         saved_data = serializer.save()
@@ -152,27 +153,28 @@ def new_walk(request):
 
         # 관련 업적 갱신
         achievements = UserAchievement.objects.filter(user_id = request.user.id, is_achieved = False)
-        for achievement in achievements:
-            try:
-                original_achievement = Achievement.objects.get(id = achievement.achievement_id.id)
-                if original_achievement.category == 'dog':
-                    if achievement.count + 1 >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
-                        achievement.is_achieved = True
-                    achievement.count += 1
-                    achievement.save()
+        if achievements.exists():
+            for achievement in achievements:
+                try:
+                    original_achievement = Achievement.objects.get(id = achievement.achievement_id.id)
+                    if original_achievement.category == 'dog':
+                        if achievement.count + 1 >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
+                            achievement.is_achieved = True
+                        achievement.count += 1
+                        achievement.save()
 
-                else: # achievement.category == 'walking'
-                    if achievement.count + distance >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
-                        achievement.is_achieved = True
-                        achievement.count = original_achievement.total_count
-                    else:
-                        achievement.count += distance
-                    achievement.save()
+                    else: # achievement.category == 'walking'
+                        if achievement.count + distance >= original_achievement.total_count: # 업적 달성 조건을 만족한경우
+                            achievement.is_achieved = True
+                            achievement.count = original_achievement.total_count
+                        else:
+                            achievement.count += distance
+                        achievement.save()
 
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                return Response({"error": f"업적 update error: {e}"}, status=500)
+                except ObjectDoesNotExist:
+                    pass
+                except Exception as e:
+                    return Response({"error": f"업적 update error: {e}"}, status=500)
 
         # User DB의 distance, count 갱신
         try:

@@ -10,11 +10,11 @@ class Walk(models.Model):
     kilocalories = models.DecimalField(max_digits=10, decimal_places=1)
     time = models.IntegerField()
     date = models.DateField()
-    image = models.ImageField(upload_to='walks', default='walks/default_walk.png')
+    image = models.ImageField(upload_to='dogs', default='dogs/default_dog.png')
     
     def save(self, *args, **kwargs):
         if not self.image:
-            self.image = 'walks/default_walk.png'
+            self.image = 'dogs/default_dog.png'
         super().save(*args, **kwargs)
 
 class Trail(models.Model):

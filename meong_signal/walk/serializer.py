@@ -45,23 +45,9 @@ class WalkInfoSerializer(serializers.ModelSerializer):
 class WalkRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Walk
-        fields = ['dog_id', 'time', 'distance', 'image']
+        fields = ['dog_id', 'time', 'distance']
 
     def create(self, validated_data):
-        if 'image' in validated_data:
-            # 파일의 확장자 추출
-            image = validated_data['image']
-
-            file_extension = image.name.split('.')[-1]
-            
-            # UUID를 사용한 새 파일 이름 생성
-            new_file_name = generate_uuid_filename(file_extension)
-
-            # 파일을 메모리에 저장
-            temp_file = ContentFile(image.read())
-            temp_file.name = new_file_name
-
-            validated_data['image'] = temp_file
 
         user = self.context['request'].user # 산책한 사람
 
@@ -69,10 +55,8 @@ class WalkRegisterSerializer(serializers.ModelSerializer):
         owner = dog.user_id
 
         kilocalories = get_calories(validated_data['time'], float(validated_data['distance']))
-        walk = Walk.objects.create(user_id=user, owner_id = owner, kilocalories=kilocalories, date=date.today(), **validated_data)
-
+        walk = Walk.objects.create(user_id=user, owner_id = owner, image = dog.image, kilocalories=kilocalories, date=date.today(), **validated_data)
         return walk
-
 
 # 강아지 정보 조회할 때 필요한 산책에 대한 정보
 class DogWalkRegisterSerializer(serializers.ModelSerializer):
