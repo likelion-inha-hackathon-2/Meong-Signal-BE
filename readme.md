@@ -243,8 +243,10 @@
 | [@seaniiio](https://github.com/seaniiio) | [@aeli22](https://github.com/aeli22) | [@sae2say](https://github.com/sae2say) | [@seung-in-Yoo](https://github.com/seung-in-Yoo) | [@abyss-s](https://github.com/abyss-s) |
 
 <br>
+
 ***
+
 저희 팀의 이전 프로젝트, '취약 계층을 위한 택시 앱' **SATE-T**도 구경해보세요! 
 
-#### [🛠️SAFE-T 프로젝트 레포지토리 링크](https://github.com/likelion-inha-hackathon-2/Summerthon-FE)
+### [🛠️SAFE-T 프로젝트 레포지토리 링크](https://github.com/likelion-inha-hackathon-2/Summerthon-FE)
 ***
