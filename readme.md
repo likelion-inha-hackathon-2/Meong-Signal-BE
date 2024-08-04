@@ -154,7 +154,10 @@
 <br>
 
 ## 🗃️데이터베이스 구조
-<br><br>
+
+![erd](meong_signal/static/readme/erd.png)
+
+#### [🛠️강쥐시그널 ERD 링크](https://www.erdcloud.com/d/8iGrcJThkHzbaZ5nH)
 
 ## ⛓️api 명세
 <br>
