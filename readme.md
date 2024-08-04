@@ -22,7 +22,7 @@
 - [🔎 상세 기능](#상세-기능)
 - [🔎 서버 아키텍처](#서버-아키텍처)
 - [🔎 와이어프레임](#와이어프레임)
-- [🔎 ERD Diagram](#erd-diagram)
+- [🔎 데이터베이스 구조](#데이터베이스-구조)
 - [🔎 api 명세](#api-명세)
 - [🔎 개발 과정](#개발-과정)
 - [🔎 팀 소개](#팀-소개)
@@ -153,7 +153,7 @@
 #### [🛠️강쥐시그널 와이어프레임 프로토타입 링크](https://www.figma.com/design/YznRx0ey7UWGjUKVWEql8c/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85?node-id=1-17&t=e4APDaxG8BwdyHzq-1)
 <br>
 
-## 🗃️ERD Diagram
+## 🗃️데이터베이스 구조
 <br><br>
 
 ## ⛓️api 명세
