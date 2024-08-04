@@ -149,18 +149,20 @@
 ## 💎와이어프레임
 
 ![와이어프레임](meong_signal/static/readme/frame.png)
+<br>
 
 #### [🛠️강쥐시그널 와이어프레임 프로토타입 링크](https://www.figma.com/design/YznRx0ey7UWGjUKVWEql8c/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85?node-id=1-17&t=e4APDaxG8BwdyHzq-1)
 <br>
 
 ## 🗃️데이터베이스 구조
 
-![erd](meong_signal/static/readme/erd.png)
+![erd](meong_signal/static/readme/erd2.png)
+<br>
 
 #### [🛠️강쥐시그널 ERD 링크](https://www.erdcloud.com/d/8iGrcJThkHzbaZ5nH)
+<br>
 
 ## ⛓️api 명세
-<br>
 
 #### [🛠️강쥐시그널 기능명세 노션 링크](https://abyss-2.notion.site/e607658be211483a9aa4f76c5e8223c2?pvs=4)
 <br>
