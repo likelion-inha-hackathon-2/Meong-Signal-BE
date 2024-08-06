@@ -32,12 +32,15 @@ def coordinate_send_request(road_address): # 도로명 주소 기반 위, 경도
     result = json.loads(str(requests.get(url, headers=headers).text))
     return result
 
-def get_calories(distance, time, weight_kg=60): # 사용자 70kg 가정, time은 분단위, distance는 km단위
-    METs = 3.5
-
-    calories_burned = ((3.5 * time * weight_kg) * 3) / 200
-    print("calories_burned:", calories_burned)
-    
+def get_calories(distance_km, weight_kg=60, speed_kmh=4): # 사용자 60kg 가정, speed는 km/h단위, distance는 km단위
+    # 걷기(시속 4km) 기준 MET 값
+    MET_walking = 3.5
+    # 속도에 따라 MET 값 조정 (단순 예시, 실제 값은 활동 강도에 따라 다를 수 있음)
+    METs = MET_walking * (speed_kmh / 4)
+    # 시간 계산 (시간 = 거리 / 속도)
+    time_hours = distance_km / speed_kmh
+    # 칼로리 소모 계산
+    calories_burned = METs * weight_kg * time_hours
     return calories_burned
 
 def get_start_of_week(): # 이번 주 월요일 계산
