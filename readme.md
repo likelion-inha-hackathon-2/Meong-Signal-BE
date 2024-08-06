@@ -245,6 +245,7 @@
 ```
 
 ## 🗒️FE 폴더 구조
+
 ```
 ├─ .github
 │  ├─ ISSUE_TEMPLATE
